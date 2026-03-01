@@ -23,7 +23,9 @@
       </div>
     </div>
     
-    <div class="space-y-4">
+    <!-- Form Grid -->
+    <!-- Primeira linha: 4 campos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <!-- Data e Hora da Entrevista -->
       <div>
         <label class="block text-sm font-medium text-white mb-2">
@@ -33,31 +35,6 @@
           v-model="localData.interviewDateTime"
           type="datetime-local" 
           class="input-field"
-          required
-        />
-      </div>
-
-      <!-- Referência Técnica -->
-      <div>
-        <label class="block text-sm font-medium text-white mb-2">
-          Referência Técnica *
-        </label>
-        <select 
-          v-model="selectedTechnical"
-          @change="handleTechnicalChange"
-          class="input-field"
-          required
-        >
-          <option value="" disabled>Selecione a referência técnica</option>
-          <option v-for="(item, index) in technicalReferences" :key="index" :value="item">{{ item }}</option>
-          <option value="__other__">Outro (digitar manualmente)</option>
-        </select>
-        <input 
-          v-if="showTechnicalInput"
-          v-model="localData.technicalReference"
-          type="text" 
-          class="input-field mt-2"
-          placeholder="Digite o nome do responsável técnico"
           required
         />
       </div>
@@ -72,31 +49,6 @@
           type="text" 
           class="input-field"
           placeholder="Ex: REQ-2024-001"
-        />
-      </div>
-
-      <!-- Cliente -->
-      <div>
-        <label class="block text-sm font-medium text-white mb-2">
-          Cliente *
-        </label>
-        <select 
-          v-model="selectedClient"
-          @change="handleClientChange"
-          class="input-field"
-          required
-        >
-          <option value="" disabled>Selecione o cliente</option>
-          <option v-for="(item, index) in clients" :key="index" :value="item">{{ item }}</option>
-          <option value="__other__">Outro (digitar manualmente)</option>
-        </select>
-        <input 
-          v-if="showClientInput"
-          v-model="localData.client"
-          type="text" 
-          class="input-field mt-2"
-          placeholder="Digite o nome do cliente"
-          required
         />
       </div>
 
@@ -144,17 +96,31 @@
           placeholder="https://..."
         />
       </div>
+    </div>
 
-      <!-- Nome Completo do Candidato -->
+    <!-- Segunda linha: 2 campos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <!-- Referência Técnica -->
       <div>
         <label class="block text-sm font-medium text-white mb-2">
-          Nome Completo do Candidato *
+          Referência Técnica *
         </label>
-        <input 
-          v-model="localData.name"
-          type="text" 
+        <select 
+          v-model="selectedTechnical"
+          @change="handleTechnicalChange"
           class="input-field"
-          placeholder="Digite o nome completo"
+          required
+        >
+          <option value="" disabled>Selecione a referência técnica</option>
+          <option v-for="(item, index) in technicalReferences" :key="index" :value="item">{{ item }}</option>
+          <option value="__other__">Outro (digitar manualmente)</option>
+        </select>
+        <input 
+          v-if="showTechnicalInput"
+          v-model="localData.technicalReference"
+          type="text" 
+          class="input-field mt-2"
+          placeholder="Digite o nome do responsável técnico"
           required
         />
       </div>
@@ -183,8 +149,52 @@
           required
         />
       </div>
+    </div>
 
-      <!-- Currículo PDF -->
+    <!-- Terceira linha: 2 campos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <!-- Nome Completo do Candidato -->
+      <div>
+        <label class="block text-sm font-medium text-white mb-2">
+          Nome Completo do Candidato *
+        </label>
+        <input 
+          v-model="localData.name"
+          type="text" 
+          class="input-field"
+          placeholder="Digite o nome completo"
+          required
+        />
+      </div>
+
+      <!-- Cliente -->
+      <div>
+        <label class="block text-sm font-medium text-white mb-2">
+          Cliente *
+        </label>
+        <select 
+          v-model="selectedClient"
+          @change="handleClientChange"
+          class="input-field"
+          required
+        >
+          <option value="" disabled>Selecione o cliente</option>
+          <option v-for="(item, index) in clients" :key="index" :value="item">{{ item }}</option>
+          <option value="__other__">Outro (digitar manualmente)</option>
+        </select>
+        <input 
+          v-if="showClientInput"
+          v-model="localData.client"
+          type="text" 
+          class="input-field mt-2"
+          placeholder="Digite o nome do cliente"
+          required
+        />
+      </div>
+    </div>
+
+    <!-- Currículo PDF - Full Width -->
+    <div class="mt-6">
       <div>
         <label class="block text-sm font-medium text-white mb-2">
           Currículo (PDF) *
@@ -213,14 +223,14 @@
           </p>
         </div>
       </div>
+    </div>
 
-      <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-        {{ error }}
-      </div>
+    <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mt-6">
+      {{ error }}
+    </div>
 
-      <div v-if="uploading" class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
-        Processando currículo...
-      </div>
+    <div v-if="uploading" class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mt-6">
+      Processando currículo...
     </div>
 
     <div class="flex justify-end mt-8">

@@ -2,13 +2,17 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Progress Bar -->
     <div class="card mb-8">
-      <div class="flex items-center justify-between mb-4">
-        <div v-for="(step, index) in steps" :key="index" class="flex-1">
-          <div class="flex items-center">
+      <div class="flex items-center justify-between">
+        <div v-for="(step, index) in steps" :key="index" class="flex-1 flex flex-col items-center">
+          <div class="flex items-center w-full justify-center">
+            <div :class="[
+              'flex-1 h-1',
+              index > 0 ? (currentStep > index - 1 ? 'bg-green-500' : 'bg-gray-300') : 'invisible'
+            ]"></div>
             <button
               @click="goToStep(index)"
               :class="[
-                'w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all cursor-pointer hover:scale-110',
+                'w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all cursor-pointer hover:scale-110 flex-shrink-0 mx-2',
                 currentStep > index ? 'bg-green-500 text-white hover:bg-green-600' : 
                 currentStep === index ? 'bg-primary-600 text-white' : 
                 'bg-gray-300 text-gray-600 hover:bg-gray-400'
@@ -17,14 +21,12 @@
             >
               {{ index + 1 }}
             </button>
-            <div v-if="index < steps.length - 1" 
-                 :class="[
-                   'flex-1 h-1 mx-2',
-                   currentStep > index ? 'bg-green-500' : 'bg-gray-300'
-                 ]"
-            ></div>
+            <div :class="[
+              'flex-1 h-1',
+              index < steps.length - 1 ? (currentStep > index ? 'bg-green-500' : 'bg-gray-300') : 'invisible'
+            ]"></div>
           </div>
-          <p class="text-xs mt-2 text-center text-white">{{ step }}</p>
+          <p class="text-xs mt-2 text-white">{{ step }}</p>
         </div>
       </div>
     </div>

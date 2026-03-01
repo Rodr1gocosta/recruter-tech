@@ -5,9 +5,9 @@
       <div class="fixed inset-0 bg-black opacity-50" @click="close"></div>
       
       <!-- Modal -->
-      <div class="relative bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto p-6 z-10">
+      <div class="relative rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto p-6 z-10" style="background-color: #480E2A;">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6 sticky top-0 bg-gray-800 pb-4 border-b border-gray-700">
+        <div class="flex items-center justify-between mb-6 sticky top-0 pb-4 border-b border-gray-700" style="background-color: #480E2A;">
           <h2 class="text-2xl font-bold text-white flex items-center">
             📝 Gerenciar Temas e Perguntas Técnicas
           </h2>

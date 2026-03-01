@@ -7,6 +7,15 @@ const api = axios.create({
   }
 });
 
+// Interceptor para adicionar API key em todas as requisições
+api.interceptors.request.use((config) => {
+  const apiKey = localStorage.getItem('openai_api_key');
+  if (apiKey) {
+    config.headers['X-OpenAI-Key'] = apiKey;
+  }
+  return config;
+});
+
 export const interviewAPI = {
   uploadResume(formData) {
     return api.post('/interview/upload-resume', formData, {
@@ -30,11 +39,12 @@ export const interviewAPI = {
     });
   },
 
-  generateReport(sessionId, candidateInfo, finalNotes) {
+  generateReport(sessionId, candidateInfo, finalNotes, situation) {
     return api.post('/interview/generate-report', {
       sessionId,
       candidateInfo,
-      finalNotes
+      finalNotes,
+      situation
     });
   },
 

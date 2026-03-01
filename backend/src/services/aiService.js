@@ -1,16 +1,29 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
+import https from 'https';
 
 dotenv.config();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+export async function generateInterviewReport(data, apiKey = null) {
+  // Usar a chave fornecida ou fallback para a variável de ambiente
+  const key = apiKey || process.env.OPENAI_API_KEY;
+  
+  if (!key) {
+    throw new Error('API Key da OpenAI não fornecida. Configure a chave nas configurações.');
+  }
 
-export async function generateInterviewReport(data) {
+  // Criar agente HTTPS que aceita certificados auto-assinados
+  // Necessário em ambientes corporativos com proxies/firewalls
+  const httpsAgent = new https.Agent({
+    rejectUnauthorized: false
+  });
+
+  const openai = new OpenAI({
+    apiKey: key,
+    httpAgent: httpsAgent,
+  });
   const {
     candidateName,
-    candidateEmail,
     recruiter,
     interviewDateTime,
     technicalReference,
@@ -21,15 +34,17 @@ export async function generateInterviewReport(data) {
     experienceNotes,
     technicalAnswers,
     resumeText,
-    finalNotes
+    finalNotes,
+    situation
   } = data;
 
   const prompt = `
-Você é um especialista em recrutamento técnico. Gere um relatório profissional e detalhado de entrevista técnica com base nas seguintes informações:
+Gere um relatório técnico de entrevista no padrão estabelecido abaixo. Use como base:
+1. A validação técnica feita durante a entrevista (informações coletadas pelo entrevistador)
+2. O currículo do candidato
 
 **INFORMAÇÕES DA ENTREVISTA**
 Candidato: ${candidateName}
-Email: ${candidateEmail}
 Cliente: ${client}
 Título da Vaga: ${jobTitle}
 ${jobNumber ? `Número da Vaga: ${jobNumber}` : ''}
@@ -38,32 +53,63 @@ Data/Hora da Entrevista: ${interviewDateTime}
 Referência Técnica: ${technicalReference}
 Responsável RH: ${recruiter}
 
-**CURRÍCULO (RESUMO)**
+**CURRÍCULO DO CANDIDATO**
 ${resumeText || 'Não fornecido'}
 
-**ETAPA 1: EXPERIÊNCIA PROFISSIONAL (15 min)**
+**EXPERIÊNCIA PROFISSIONAL VALIDADA NA ENTREVISTA**
 ${experienceNotes.mainExperiences ? `Experiências Principais: ${experienceNotes.mainExperiences}` : ''}
 ${experienceNotes.technologies ? `Tecnologias Usadas: ${experienceNotes.technologies}` : ''}
 ${experienceNotes.challenges ? `Desafios Resolvidos: ${experienceNotes.challenges}` : ''}
 ${experienceNotes.strengths ? `Pontos Fortes Percebidos: ${experienceNotes.strengths}` : ''}
 ${experienceNotes.communication ? `Comunicação: ${experienceNotes.communication}` : ''}
 
-**ETAPA 2: AVALIAÇÃO TÉCNICA (15 min)**
+**AVALIAÇÃO TÉCNICA**
 ${formatTechnicalAnswers(technicalAnswers)}
 
-**NOTAS FINAIS DO RECRUTADOR**
-${finalNotes}
+**AVALIAÇÃO FINAL DO ENTREVISTADOR**
+Situação: ${situation || 'Não informada'}
+Notas Finais: ${finalNotes}
 
-Por favor, gere um relatório estruturado contendo:
+---
 
-1. **RESUMO EXECUTIVO**: Uma análise geral do candidato (2-3 parágrafos)
-2. **ANÁLISE DE EXPERIÊNCIA**: Avaliação detalhada da experiência profissional
-3. **ANÁLISE TÉCNICA**: Avaliação das respostas técnicas com pontuação total
-4. **PONTOS FORTES**: Liste os principais pontos fortes identificados
-5. **PONTOS DE ATENÇÃO**: Áreas que merecem atenção ou desenvolvimento
-6. **RECOMENDAÇÃO FINAL**: Baseado em todas as informações, o candidato é APROVADO, APROVADO COM RESSALVAS ou NÃO APROVADO?
+**FORMATO DO RELATÓRIO** (siga rigorosamente este padrão):
 
-Use um tom profissional e objetivo. Seja específico e forneça exemplos quando possível.
+Candidato: ${candidateName}
+Perfil: [Júnior / Pleno / Sênior / Especialista]
+
+Experiência Validada:
+- Java (versões):
+- JavaEE/JakartaEE:
+- Frameworks:
+- Arquitetura:
+- Persistência:
+- Banco de Dados:
+- Mensageria:
+- CI/CD:
+- Nuvem:
+- Observabilidade:
+- Boas práticas:
+- Testes:
+- Front-end:
+- Metodologias:
+- Outras observações relevantes:
+
+Análise Final:
+[Escreva uma síntese crítica OBJETIVA e CONCISA em NO MÁXIMO 5 LINHAS considerando: currículo, experiências validadas na entrevista, desempenho técnico (pontuações e observações), situação (${situation || 'não informada'}) e notas do entrevistador. Seja direto e conclusivo.]
+
+---
+
+INSTRUÇÕES:
+- Preencha cada item de "Experiência Validada" com base nas informações fornecidas do currículo e da validação técnica
+- Se alguma informação não estiver disponível, indique "Não validado" ou "Não informado"
+- Na Análise Final, seja CONCISO (MÁXIMO 5 LINHAS) e baseie-se em:
+  * Currículo do candidato
+  * Avaliação Técnica - considere a pontuação total (${formatTechnicalAnswers(technicalAnswers).includes('PONTUAÇÃO TOTAL') ? 'incluída acima' : ''}) e as observações das respostas
+  * Experiência Profissional validada durante a entrevista (principalmente: experiências principais, tecnologias, desafios resolvidos e pontos fortes)
+  * Situação final (${situation || 'não informada'}) e Notas Finais do entrevistador
+- A Análise Final deve ser uma síntese crítica direta que justifique a recomendação
+- NÃO repita informações da seção "Experiência Validada"
+- Seja objetivo e conclusivo
 `;
 
   try {
@@ -72,14 +118,14 @@ Use um tom profissional e objetivo. Seja específico e forneça exemplos quando 
       messages: [
         {
           role: 'system',
-          content: 'Você é um especialista em recrutamento técnico que gera relatórios detalhados e profissionais de entrevistas.'
+          content: 'Você é um especialista técnico em recrutamento que gera relatórios objetivos e estruturados de entrevistas técnicas. Siga rigorosamente o formato solicitado e baseie-se apenas nas informações fornecidas.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      temperature: 0.7,
+      temperature: 0.5,
       max_tokens: 2000
     });
 

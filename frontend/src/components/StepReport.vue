@@ -33,7 +33,8 @@
       </div>
 
       <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-        {{ error }}
+        <div class="font-semibold mb-2">❌ Erro</div>
+        <div class="whitespace-pre-line text-sm">{{ error }}</div>
       </div>
 
       <div v-if="generating" class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded flex items-center">
@@ -47,7 +48,7 @@
         </button>
         <button 
           @click="handleGenerateReport"
-          :disabled="generating || !finalNotes.trim() || !situation"
+          :disabled="generating"
           class="btn-primary"
         >
           {{ generating ? 'Gerando...' : '✨ Gerar Relatório com IA' }}
@@ -66,42 +67,38 @@
 
       <!-- Informações do Candidato -->
       <div class="bg-gray-50 p-4 rounded-lg">
-        <h3 class="font-semibold text-white mb-3">Informações da Entrevista</h3>
+        <h3 class="font-semibold text-gray-900 mb-3">Informações da Entrevista</h3>
         <div class="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <span class="text-white">Candidato:</span>
-            <span class="ml-2 font-medium">{{ props.data.candidateInfo.name }}</span>
+            <span class="text-gray-900">Candidato:</span>
+            <span class="ml-2 font-medium text-gray-900">{{ props.data.candidateInfo.name }}</span>
           </div>
           <div>
-            <span class="text-white">Email:</span>
-            <span class="ml-2 font-medium">{{ props.data.candidateInfo.email }}</span>
+            <span class="text-gray-900">Cliente:</span>
+            <span class="ml-2 font-medium text-gray-900">{{ props.data.candidateInfo.client }}</span>
           </div>
           <div>
-            <span class="text-white">Cliente:</span>
-            <span class="ml-2 font-medium">{{ props.data.candidateInfo.client }}</span>
+            <span class="text-gray-900">Título da Vaga:</span>
+            <span class="ml-2 font-medium text-gray-900">{{ props.data.candidateInfo.jobTitle }}</span>
           </div>
           <div>
-            <span class="text-white">Título da Vaga:</span>
-            <span class="ml-2 font-medium">{{ props.data.candidateInfo.jobTitle }}</span>
+            <span class="text-gray-900">Ref. Técnica:</span>
+            <span class="ml-2 font-medium text-gray-900">{{ props.data.candidateInfo.technicalReference }}</span>
           </div>
           <div>
-            <span class="text-white">Ref. Técnica:</span>
-            <span class="ml-2 font-medium">{{ props.data.candidateInfo.technicalReference }}</span>
+            <span class="text-gray-900">Responsável RH:</span>
+            <span class="ml-2 font-medium text-gray-900">{{ props.data.candidateInfo.recruiter }}</span>
           </div>
           <div>
-            <span class="text-white">Responsável RH:</span>
-            <span class="ml-2 font-medium">{{ props.data.candidateInfo.recruiter }}</span>
-          </div>
-          <div>
-            <span class="text-white">Data/Hora:</span>
-            <span class="ml-2 font-medium">{{ formatDateTime(props.data.candidateInfo.interviewDateTime) }}</span>
+            <span class="text-gray-900">Data/Hora:</span>
+            <span class="ml-2 font-medium text-gray-900">{{ formatDateTime(props.data.candidateInfo.interviewDateTime) }}</span>
           </div>
           <div v-if="props.data.candidateInfo.jobNumber">
-            <span class="text-white">Nº Vaga:</span>
-            <span class="ml-2 font-medium">{{ props.data.candidateInfo.jobNumber }}</span>
+            <span class="text-gray-900">Nº Vaga:</span>
+            <span class="ml-2 font-medium text-gray-900">{{ props.data.candidateInfo.jobNumber }}</span>
           </div>
           <div>
-            <span class="text-white">Situação:</span>
+            <span class="text-gray-900">Situação:</span>
             <span class="ml-2 font-medium" :class="{
               'text-green-700 font-bold': situation === 'Aprovado',
               'text-red-700 font-bold': situation === 'Reprovado',
@@ -183,6 +180,24 @@ const formatDateTime = (dateTimeString) => {
 };
 
 const handleGenerateReport = async () => {
+  // Validar campos obrigatórios
+  const missingFields = [];
+  
+  if (!props.data.candidateInfo.name) missingFields.push('Nome do Candidato');
+  if (!props.data.candidateInfo.interviewDateTime) missingFields.push('Data e Hora da Entrevista');
+  if (!props.data.candidateInfo.technicalReference) missingFields.push('Referência Técnica');
+  if (!props.data.candidateInfo.client) missingFields.push('Cliente');
+  if (!props.data.candidateInfo.jobTitle) missingFields.push('Título da Vaga');
+  if (!props.data.candidateInfo.recruiter) missingFields.push('Nome Responsável RH');
+  if (!props.data.sessionId) missingFields.push('Currículo (PDF)');
+  if (!finalNotes.value.trim()) missingFields.push('Notas Finais');
+  if (!situation.value) missingFields.push('Situação');
+  
+  if (missingFields.length > 0) {
+    error.value = `Por favor, preencha os seguintes campos obrigatórios:\n\n${missingFields.map(f => `- ${f}`).join('\n')}\n\nVolte às etapas anteriores para completar as informações.`;
+    return;
+  }
+
   try {
     generating.value = true;
     error.value = '';
@@ -190,7 +205,8 @@ const handleGenerateReport = async () => {
     const response = await interviewAPI.generateReport(
       props.data.sessionId,
       props.data.candidateInfo,
-      finalNotes.value
+      finalNotes.value,
+      situation.value
     );
 
     report.value = response.data.report;

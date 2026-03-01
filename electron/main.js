@@ -1,7 +1,11 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
-const isDev = require('electron-is-dev');
-const { spawn } = require('child_process');
+import { app, BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import isDev from 'electron-is-dev';
+import { spawn } from 'child_process';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let mainWindow;
 let backendProcess;

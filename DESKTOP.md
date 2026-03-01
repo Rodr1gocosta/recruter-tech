@@ -188,3 +188,5 @@ Em caso de problemas, verifique:
 - [Electron Builder](https://www.electron.build/)
 - [Vite](https://vitejs.dev/)
 - [Vue 3](https://vuejs.org/)
+
+import isDev from 'electron-is-dev';

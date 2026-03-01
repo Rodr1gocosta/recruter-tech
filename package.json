@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Sistema de Entrevistas Técnicas - Desktop App",
   "main": "electron/main.js",
+  "type": "module",
   "author": "Recruter Tech Team",
   "license": "MIT",
   "scripts": {

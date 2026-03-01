@@ -84,7 +84,8 @@ export const saveTechnicalData = async (req, res) => {
 
 export const generateReport = async (req, res) => {
   try {
-    const { sessionId, finalNotes, candidateInfo } = req.body;
+    const { sessionId, finalNotes, candidateInfo, situation } = req.body;
+    const apiKey = req.headers['x-openai-key']; // Obter a chave do header
 
     if (!sessionId || !sessions.has(sessionId)) {
       return res.status(400).json({ error: 'Sessão inválida' });
@@ -94,7 +95,6 @@ export const generateReport = async (req, res) => {
 
     const reportData = {
       candidateName: candidateInfo.name,
-      candidateEmail: candidateInfo.email,
       recruiter: candidateInfo.recruiter,
       interviewDateTime: candidateInfo.interviewDateTime,
       technicalReference: candidateInfo.technicalReference,
@@ -105,11 +105,12 @@ export const generateReport = async (req, res) => {
       experienceNotes: session.experienceNotes || {},
       technicalAnswers: session.technicalAnswers || [],
       resumeText: session.resumeText,
-      finalNotes: finalNotes
+      finalNotes: finalNotes,
+      situation: situation
     };
 
-    // Gerar relatório com IA
-    const reportText = await generateInterviewReport(reportData);
+    // Gerar relatório com IA (passar a API key)
+    const reportText = await generateInterviewReport(reportData, apiKey);
 
     // Gerar PDF
     const pdfResult = await generatePDF(reportData, reportText);

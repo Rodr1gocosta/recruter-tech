@@ -5,16 +5,18 @@
       <div class="flex items-center justify-between mb-4">
         <div v-for="(step, index) in steps" :key="index" class="flex-1">
           <div class="flex items-center">
-            <div 
+            <button
+              @click="goToStep(index)"
               :class="[
-                'w-10 h-10 rounded-full flex items-center justify-center font-bold',
-                currentStep > index ? 'bg-green-500 text-white' : 
+                'w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all cursor-pointer hover:scale-110',
+                currentStep > index ? 'bg-green-500 text-white hover:bg-green-600' : 
                 currentStep === index ? 'bg-primary-600 text-white' : 
-                'bg-gray-300 text-gray-600'
+                'bg-gray-300 text-gray-600 hover:bg-gray-400'
               ]"
+              :title="'Ir para ' + step"
             >
               {{ index + 1 }}
-            </div>
+            </button>
             <div v-if="index < steps.length - 1" 
                  :class="[
                    'flex-1 h-1 mx-2',
@@ -60,7 +62,6 @@ const formData = ref({
     jobTitle: '',
     jobLink: '',
     name: '',
-    email: '',
     recruiter: '',
     resume: null
   },
@@ -93,6 +94,10 @@ const handleBack = () => {
   if (currentStep.value > 0) {
     currentStep.value--;
   }
+};
+
+const goToStep = (index) => {
+  currentStep.value = index;
 };
 
 const updateData = (key, value) => {

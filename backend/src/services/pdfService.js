@@ -45,14 +45,23 @@ export async function generatePDF(reportData, reportText) {
          .text('INFORMAÇÕES DA ENTREVISTA', { underline: true })
          .moveDown(0.5);
 
+      // Formatar data
+      const formatDate = (dateTimeString) => {
+        if (!dateTimeString) return '';
+        const date = new Date(dateTimeString);
+        return date.toLocaleString('pt-BR', {
+          dateStyle: 'short',
+          timeStyle: 'short'
+        });
+      };
+
       doc.fontSize(11)
          .fillColor('#374151')
          .text(`Candidato: ${reportData.candidateName}`)
-         .text(`Email: ${reportData.candidateEmail}`)
          .text(`Cliente: ${reportData.client}`)
          .text(`Título da Vaga: ${reportData.jobTitle}`)
          .text(`${reportData.jobNumber ? `Número da Vaga: ${reportData.jobNumber}` : ''}`)
-         .text(`Data/Hora da Entrevista: ${reportData.interviewDateTime}`)
+         .text(`Data/Hora da Entrevista: ${formatDate(reportData.interviewDateTime)}`)
          .text(`Referência Técnica: ${reportData.technicalReference}`)
          .text(`Responsável RH: ${reportData.recruiter}`)
          .moveDown(1.5);

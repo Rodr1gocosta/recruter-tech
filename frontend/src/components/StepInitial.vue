@@ -2,6 +2,27 @@
   <div>
     <h2 class="text-2xl font-bold text-white mb-6">1️⃣ Informações Iniciais</h2>
     
+    <!-- API Key Warning -->
+    <div v-if="!hasApiKey" class="bg-red-900/30 border border-red-600/50 rounded-lg p-4 mb-6">
+      <div class="flex items-start gap-3">
+        <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div class="flex-1">
+          <h3 class="text-red-400 font-semibold mb-1">⚠️ Chave da API OpenAI não configurada</h3>
+          <p class="text-red-300 text-sm mb-3">
+            Para gerar relatórios com IA, você precisa configurar sua chave da API OpenAI.
+            Clique no botão "Configurações" no canto superior direito da tela.
+          </p>
+          <p class="text-red-200 text-xs">
+            <a href="https://platform.openai.com/api-keys" target="_blank" class="underline hover:text-white">
+              Obter chave da API aqui →
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+    
     <div class="space-y-4">
       <!-- Data e Hora da Entrevista -->
       <div>
@@ -21,11 +42,22 @@
         <label class="block text-sm font-medium text-white mb-2">
           Referência Técnica *
         </label>
+        <select 
+          v-model="selectedTechnical"
+          @change="handleTechnicalChange"
+          class="input-field"
+          required
+        >
+          <option value="" disabled>Selecione a referência técnica</option>
+          <option v-for="(item, index) in technicalReferences" :key="index" :value="item">{{ item }}</option>
+          <option value="__other__">Outro (digitar manualmente)</option>
+        </select>
         <input 
+          v-if="showTechnicalInput"
           v-model="localData.technicalReference"
           type="text" 
-          class="input-field"
-          placeholder="Nome do responsável técnico"
+          class="input-field mt-2"
+          placeholder="Digite o nome do responsável técnico"
           required
         />
       </div>
@@ -49,22 +81,23 @@
           Cliente *
         </label>
         <select 
-          v-model="localData.client"
+          v-model="selectedClient"
+          @change="handleClientChange"
           class="input-field"
           required
         >
           <option value="" disabled>Selecione o cliente</option>
-          <option value="Sicoob">Sicoob</option>
-          <option value="Santander">Santander</option>
-          <option value="Banco do Brasil">Banco do Brasil</option>
-          <option value="Bradesco">Bradesco</option>
-          <option value="Itaú">Itaú</option>
-          <option value="Caixa Econômica Federal">Caixa Econômica Federal</option>
-          <option value="Nubank">Nubank</option>
-          <option value="Inter">Inter</option>
-          <option value="BTG Pactual">BTG Pactual</option>
-          <option value="Outro">Outro</option>
+          <option v-for="(item, index) in clients" :key="index" :value="item">{{ item }}</option>
+          <option value="__other__">Outro (digitar manualmente)</option>
         </select>
+        <input 
+          v-if="showClientInput"
+          v-model="localData.client"
+          type="text" 
+          class="input-field mt-2"
+          placeholder="Digite o nome do cliente"
+          required
+        />
       </div>
 
       <!-- Título da Vaga -->
@@ -102,14 +135,13 @@
       <!-- Link da Vaga -->
       <div>
         <label class="block text-sm font-medium text-white mb-2">
-          Link da Vaga *
+          Link da Vaga <span class="text-gray-400 text-xs">(Opcional)</span>
         </label>
         <input 
           v-model="localData.jobLink"
           type="url" 
           class="input-field"
           placeholder="https://..."
-          required
         />
       </div>
 
@@ -127,30 +159,27 @@
         />
       </div>
 
-      <!-- Email do Candidato -->
-      <div>
-        <label class="block text-sm font-medium text-white mb-2">
-          Email do Candidato *
-        </label>
-        <input 
-          v-model="localData.email"
-          type="email" 
-          class="input-field"
-          placeholder="email@exemplo.com"
-          required
-        />
-      </div>
-
       <!-- Nome Responsável RH -->
       <div>
         <label class="block text-sm font-medium text-white mb-2">
           Nome Responsável RH *
         </label>
+        <select 
+          v-model="selectedRecruiter"
+          @change="handleRecruiterChange"
+          class="input-field"
+          required
+        >
+          <option value="" disabled>Selecione o responsável RH</option>
+          <option v-for="(item, index) in recruiters" :key="index" :value="item">{{ item }}</option>
+          <option value="__other__">Outro (digitar manualmente)</option>
+        </select>
         <input 
+          v-if="showRecruiterInput"
           v-model="localData.recruiter"
           type="text" 
-          class="input-field"
-          placeholder="Nome do responsável RH"
+          class="input-field mt-2"
+          placeholder="Digite o nome do responsável RH"
           required
         />
       </div>
@@ -207,7 +236,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { interviewAPI } from '../services/api';
 
 const props = defineProps(['data']);
@@ -224,6 +253,102 @@ const getDefaultDateTime = () => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
+// CRUD data
+const technicalReferences = ref([]);
+const clients = ref([]);
+const recruiters = ref([]);
+
+// Selected values
+const selectedTechnical = ref('');
+const selectedClient = ref('');
+const selectedRecruiter = ref('');
+
+// Show manual input
+const showTechnicalInput = ref(false);
+const showClientInput = ref(false);
+const showRecruiterInput = ref(false);
+
+// Load CRUD data
+const loadCrudData = () => {
+  technicalReferences.value = JSON.parse(localStorage.getItem('technicalReferences') || '[]');
+  clients.value = JSON.parse(localStorage.getItem('clients') || '[]');
+  recruiters.value = JSON.parse(localStorage.getItem('recruiters') || '[]');
+};
+
+// Handle changes
+const handleTechnicalChange = () => {
+  if (selectedTechnical.value === '__other__') {
+    showTechnicalInput.value = true;
+    localData.technicalReference = '';
+  } else {
+    showTechnicalInput.value = false;
+    localData.technicalReference = selectedTechnical.value;
+  }
+};
+
+const handleClientChange = () => {
+  if (selectedClient.value === '__other__') {
+    showClientInput.value = true;
+    localData.client = '';
+  } else {
+    showClientInput.value = false;
+    localData.client = selectedClient.value;
+  }
+};
+
+const handleRecruiterChange = () => {
+  if (selectedRecruiter.value === '__other__') {
+    showRecruiterInput.value = true;
+    localData.recruiter = '';
+  } else {
+    showRecruiterInput.value = false;
+    localData.recruiter = selectedRecruiter.value;
+  }
+};
+
+onMounted(() => {
+  loadCrudData();
+  
+  // Listen for CRUD updates
+  const handleCrudUpdate = () => {
+    loadCrudData();
+  };
+  window.addEventListener('crud-data-updated', handleCrudUpdate);
+  
+  // Cleanup
+  onUnmounted(() => {
+    window.removeEventListener('crud-data-updated', handleCrudUpdate);
+  });
+  
+  // Set initial values if exists
+  if (props.data.candidateInfo.technicalReference) {
+    if (technicalReferences.value.includes(props.data.candidateInfo.technicalReference)) {
+      selectedTechnical.value = props.data.candidateInfo.technicalReference;
+    } else {
+      selectedTechnical.value = '__other__';
+      showTechnicalInput.value = true;
+    }
+  }
+  
+  if (props.data.candidateInfo.client) {
+    if (clients.value.includes(props.data.candidateInfo.client)) {
+      selectedClient.value = props.data.candidateInfo.client;
+    } else {
+      selectedClient.value = '__other__';
+      showClientInput.value = true;
+    }
+  }
+  
+  if (props.data.candidateInfo.recruiter) {
+    if (recruiters.value.includes(props.data.candidateInfo.recruiter)) {
+      selectedRecruiter.value = props.data.candidateInfo.recruiter;
+    } else {
+      selectedRecruiter.value = '__other__';
+      showRecruiterInput.value = true;
+    }
+  }
+});
+
 const localData = reactive({
   interviewDateTime: props.data.candidateInfo.interviewDateTime || getDefaultDateTime(),
   technicalReference: props.data.candidateInfo.technicalReference || '',
@@ -232,7 +357,6 @@ const localData = reactive({
   jobTitle: props.data.candidateInfo.jobTitle || '',
   jobLink: props.data.candidateInfo.jobLink || '',
   name: props.data.candidateInfo.name || '',
-  email: props.data.candidateInfo.email || '',
   recruiter: props.data.candidateInfo.recruiter || ''
 });
 
@@ -240,16 +364,13 @@ const selectedFile = ref(null);
 const uploading = ref(false);
 const error = ref('');
 
+const hasApiKey = computed(() => {
+  const key = localStorage.getItem('openai_api_key');
+  return key && key.trim().length > 0;
+});
+
 const isValid = computed(() => {
-  return localData.interviewDateTime && 
-         localData.technicalReference && 
-         localData.client && 
-         localData.jobTitle && 
-         localData.jobLink && 
-         localData.name && 
-         localData.email && 
-         localData.recruiter &&
-         selectedFile.value;
+  return selectedFile.value;
 });
 
 const handleFileSelect = (event) => {
@@ -294,7 +415,6 @@ const handleSubmit = async () => {
     emit('update', 'candidateInfo.jobTitle', localData.jobTitle);
     emit('update', 'candidateInfo.jobLink', localData.jobLink);
     emit('update', 'candidateInfo.name', localData.name);
-    emit('update', 'candidateInfo.email', localData.email);
     emit('update', 'candidateInfo.recruiter', localData.recruiter);
 
     emit('next');

@@ -1,0 +1,175 @@
+{
+  "categories": [
+    {
+      "id": "java",
+      "name": "Java",
+      "questions": [
+        { "id": 1, "question": "Quantos anos trabalha com Java?", "hint": "Junior: 1 a 2, Pleno 3 a 5, Senior 5+", "maxScore": 5 },
+        { "id": 2, "question": "O que é orientação a objetos e como pode ser aplicada em Java?", "hint": "Usa encapsulamento, herança, polimorfismo e abstração para organizar código de forma reutilizável.", "maxScore": 5 },
+        { "id": 3, "question": "Modificadores de acesso sobre Static e Final", "hint": "Static (Não cria ou inicia um objeto, consumo de memória) e Final (Garanti a imutabilidade)", "maxScore": 5 },
+        { "id": 4, "question": "Sobre estrutura de dados. Qual a diferença entre List, Set e Map?", "hint": "List (Adicionar qualquer coisa), Set (Não pode ter repetido), Map (cria chave e valor) e Collections (Cria a coleção)", "maxScore": 5 },
+        { "id": 5, "question": "Explique a diferença entre sobrescrita e sobrecarga de métodos.", "hint": "Sobrescrita redefine método em subclasses (Override); sobrecarga muda parâmetros na mesma classe (Overload).", "maxScore": 5 },
+        { "id": 6, "question": "Como funciona o gerenciamento de memória em Java?", "hint": "Garbage Collector cuida de objetos não referenciados. Importante evitar vazamentos por referências persistentes.", "maxScore": 5 },
+        { "id": 7, "question": "Qual a vantagem de usar enums no lugar de constantes?", "hint": "Enums são tipos seguros, podem conter métodos e lógica associada a cada valor.", "maxScore": 5 },
+        { "id": 8, "question": "O que significa Void no Java?", "hint": "Significa que um método ou classe não retorna nada.", "maxScore": 5 },
+        { "id": 9, "question": "Como funciona o Try/Catch?", "hint": "Para tratar exceções.", "maxScore": 5 },
+        { "id": 10, "question": "Teste unitário, integração, API e Interface", "hint": "JUnit, Mockito e Cobertura", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "maven",
+      "name": "Maven",
+      "questions": [
+        { "id": 11, "question": "O que é o Maven e qual seu propósito principal?", "hint": "Seu principal propósito é gerenciar dependências, compilar o código, executar testes, empacotar o projeto.", "maxScore": 5 },
+        { "id": 12, "question": "O que é o arquivo pom.xml?", "hint": "Arquivo de configuração principal do Maven.", "maxScore": 5 },
+        { "id": 13, "question": "Qual a diferença entre os comandos mvn clean install e mvn package?", "hint": "Limpa o projeto, compila, testa, empacota e instala o artefato no repositório local.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "websphere",
+      "name": "Websphere",
+      "questions": [
+        { "id": 14, "question": "Como funciona o ciclo de vida de uma aplicação no Websphere?", "hint": "Inicia com deploy, passando por start, execução e stop. É gerenciado via console administrativo.", "maxScore": 5 },
+        { "id": 15, "question": "Como configurar e testar um datasource no Websphere?", "hint": "Define JNDI, tipo de banco, credenciais e realiza teste de conexão via console.", "maxScore": 5 },
+        { "id": 16, "question": "Quais os principais logs no Websphere e para que servem?", "hint": "SystemOut.log e SystemErr.log mostram logs da aplicação. Trace.log para debugging detalhado.", "maxScore": 5 },
+        { "id": 17, "question": "Como lidar com problemas de performance no Websphere?", "hint": "Tuning da JVM, análise de heap, monitoramento de threads e análise de logs de GC.", "maxScore": 5 },
+        { "id": 18, "question": "Qual a diferença entre Websphere e servidores como Tomcat?", "hint": "Websphere é mais completo e robusto, com suporte nativo a EJB, transações distribuídas e clustering.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "jpa-hibernate",
+      "name": "JPA/Hibernate",
+      "questions": [
+        { "id": 19, "question": "Explique o ciclo de vida de uma entidade JPA.", "hint": "Transient, Managed, Detached, Removed. Controlado via EntityManager.", "maxScore": 5 },
+        { "id": 20, "question": "Qual a diferença entre as anotações @OneToMany e @ManyToOne e onde são implementados?", "hint": "São implementados no Domain ou Entidades.", "maxScore": 5 },
+        { "id": 21, "question": "Como você faria para atualizar um registro no banco usando JPA?", "hint": "Buscaria com findById(), alterava os dados e salvava.", "maxScore": 5 },
+        { "id": 22, "question": "Qual a diferença entre persist() e merge()?", "hint": "persist insere novo, merge serve para atualizar.", "maxScore": 5 },
+        { "id": 23, "question": "Como funciona o cache de segundo nível no Hibernate?", "hint": "Armazena entidades entre sessões. Pode usar EHCache, Infinispan ou Redis.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "spring",
+      "name": "Spring",
+      "questions": [
+        { "id": 24, "question": "Como funciona o controle transacional com @Transactional no Spring?", "hint": "Garante que a transação com banco de dados seja feita com sucesso, caso contrário desfaz tudo.", "maxScore": 5 },
+        { "id": 25, "question": "Qual a diferença entre @Component, @Service e @Repository?", "hint": "@Service é para lógica de negócio, @Repository para DAO, @Component genérico.", "maxScore": 5 },
+        { "id": 26, "question": "O que é o ApplicationContext no Spring?", "hint": "É o container que gerencia os beans, ciclo de vida, injeção e eventos.", "maxScore": 5 },
+        { "id": 27, "question": "Como configurar propriedades externas no Spring Boot?", "hint": "Via application.properties ou application.yml. Pode usar @Value ou ConfigurationProperties.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "ejb",
+      "name": "EJB",
+      "questions": [
+        { "id": 28, "question": "Qual a diferença entre @Stateless e @Stateful no EJB?", "hint": "Stateless (mesma instância para vários clientes) e Stateful (única instância para um cliente por vez)", "maxScore": 5 },
+        { "id": 29, "question": "Para que serve o @Singleton no EJB?", "hint": "Uma instância única compartilhada no ciclo de vida da aplicação. Ideal para caches ou configurações.", "maxScore": 5 },
+        { "id": 30, "question": "Para que serve a @EJB?", "hint": "Para injetar de outra classe.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "jasper",
+      "name": "JasperReports",
+      "questions": [
+        { "id": 31, "question": "Já trabalhou com JasperReports?", "hint": "Perguntar sobre experiência", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "design-patterns",
+      "name": "Padrões de Projeto",
+      "questions": [
+        { "id": 32, "question": "Quando você usaria o padrão Builder?", "hint": "Para criar objetos complexos com muitos parâmetros opcionais.", "maxScore": 5 },
+        { "id": 33, "question": "Explique o padrão Observer.", "hint": "Define dependência 1:N onde múltiplos objetos escutam mudanças em outro.", "maxScore": 5 },
+        { "id": 34, "question": "Qual a diferença entre Adapter e Facade?", "hint": "Adapter adapta interfaces diferentes, Facade simplifica múltiplas interfaces.", "maxScore": 5 },
+        { "id": 35, "question": "Como o padrão Decorator é aplicado em Java?", "hint": "Adiciona funcionalidades a um objeto de forma dinâmica.", "maxScore": 5 },
+        { "id": 36, "question": "Para que serve o padrão Command?", "hint": "Encapsula uma ação em um objeto. Útil para filas, undo/redo.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "database",
+      "name": "Banco de Dados",
+      "questions": [
+        { "id": 37, "question": "Como você modelaria um relacionamento 1:N em um banco relacional?", "hint": "Com chave estrangeira na tabela N apontando para a tabela 1.", "maxScore": 5 },
+        { "id": 38, "question": "Qual a importância dos índices?", "hint": "Melhoram performance de leitura, mas devem ser usados com equilíbrio para não afetar escrita.", "maxScore": 5 },
+        { "id": 39, "question": "Uma chave primária (PRIMARY KEY), pode ser null ou repetido?", "hint": "Não pode ser nulo e nem repetido", "maxScore": 5 },
+        { "id": 40, "question": "Como garantir integridade referencial entre tabelas?", "hint": "Com foreign keys, constraints e boas práticas de modelagem.", "maxScore": 5 },
+        { "id": 41, "question": "Como otimizar uma query complexa com joins?", "hint": "Usar índices, evitar subqueries desnecessárias, filtrar cedo e analisar plano de execução.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "git",
+      "name": "GIT",
+      "questions": [
+        { "id": 42, "question": "Como funciona o fluxo GitFlow?", "hint": "Branches de feature, develop, release e hotfix. Ajuda no controle de versões.", "maxScore": 5 },
+        { "id": 43, "question": "Qual a diferença entre git pull e git fetch?", "hint": "Fetch apenas baixa as atualizações; pull faz fetch e merge automático.", "maxScore": 5 },
+        { "id": 44, "question": "Como fazer rollback de um commit?", "hint": "Com git revert para desfazer mantendo histórico.", "maxScore": 5 },
+        { "id": 45, "question": "Como você lida com conflitos de merge?", "hint": "Analisa com calma, testa após resolver e valida alterações.", "maxScore": 5 },
+        { "id": 46, "question": "Como você organiza commits em um projeto colaborativo?", "hint": "Commits pequenos, mensagens claras, squash em merges se necessário.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "devops",
+      "name": "DevOps",
+      "questions": [
+        { "id": 47, "question": "O que é CI/CD e qual sua importância?", "hint": "Automatiza build, testes e deploy, reduzindo erros manuais.", "maxScore": 5 },
+        { "id": 48, "question": "Quais ferramentas executam um CI/CD?", "hint": "Ferramentas como Jenkins, GitHub Action, GitLab", "maxScore": 5 },
+        { "id": 49, "question": "Como configurar testes automatizados em pipelines?", "hint": "Scripts de teste integrados ao pipeline. Falhas impedem deploy.", "maxScore": 5 },
+        { "id": 50, "question": "Você já configurou deploy automático? Como foi?", "hint": "Sim. Após aprovação, build e deploy são realizados automaticamente com validação.", "maxScore": 5 },
+        { "id": 51, "question": "Como tratar falhas em pipelines CI/CD?", "hint": "Logs claros, notificações e etapas de rollback se necessário.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "angular",
+      "name": "Angular",
+      "questions": [
+        { "id": 52, "question": "Quantos anos de experiência com Angular?", "hint": "Perguntar sobre tempo de experiência", "maxScore": 5 },
+        { "id": 53, "question": "Qual a função dos serviços no Angular?", "hint": "Compartilhar lógica entre componentes. Usado com injeção de dependência.", "maxScore": 5 },
+        { "id": 54, "question": "Como funciona o roteamento no Angular?", "hint": "Define rotas com RouterModule. Usa componentes por path.", "maxScore": 5 },
+        { "id": 55, "question": "O que são observables e como são usados?", "hint": "Usa RxJS para lidar com streams assíncronos (ex: chamadas HTTP).", "maxScore": 5 },
+        { "id": 56, "question": "Como você trata erros em requisições HTTP?", "hint": "Com catchError no pipe de observables, mostrando mensagens ao usuário.", "maxScore": 5 },
+        { "id": 57, "question": "Standalone Components?", "hint": "Eliminando a necessidade de NgModules.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "metodologia",
+      "name": "Metodologia",
+      "questions": [
+        { "id": 58, "question": "Já trabalhou com Scrum? Como foi sua experiência?", "hint": "Daily, Reviews, Refinamento, Ritos", "maxScore": 5 },
+        { "id": 59, "question": "Já usou quadro Kanban?", "hint": "Processo", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "financeiro",
+      "name": "Projetos Financeiros",
+      "questions": [
+        { "id": 60, "question": "Já integrou sistemas bancários? Como foi?", "hint": "Sim, via APIs com autenticação segura, validação de dados sensíveis.", "maxScore": 5 },
+        { "id": 61, "question": "Como trata dados financeiros sensíveis?", "hint": "Criptografia, mascaramento, políticas de acesso restrito.", "maxScore": 5 },
+        { "id": 62, "question": "Quais validações são comuns em sistemas financeiros?", "hint": "CPF, CNPJ, limites de valor, datas válidas, consistência entre operações.", "maxScore": 5 },
+        { "id": 63, "question": "Você já lidou com conciliação bancária?", "hint": "Sim, cruzamento de dados internos com extratos bancários para validação.", "maxScore": 5 },
+        { "id": 64, "question": "Como garantir disponibilidade em sistemas críticos financeiros?", "hint": "Uso de redundância, failover, monitoramento contínuo.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle",
+      "questions": [
+        { "id": 65, "question": "Você já trabalhou com PL/SQL?", "hint": "Sim, criação de procedures, triggers, functions e pacotes.", "maxScore": 5 },
+        { "id": 66, "question": "Como monitorar performance de queries no Oracle?", "hint": "Usa EXPLAIN PLAN, AWR Reports e tuning advisor.", "maxScore": 5 },
+        { "id": 67, "question": "Você já utilizou sequences?", "hint": "Sim, para gerar IDs únicos. Evita colisões em inserts concorrentes.", "maxScore": 5 },
+        { "id": 68, "question": "Como fazer backup e restore em Oracle?", "hint": "Com RMAN, datapump (exp/imp), dependendo do cenário.", "maxScore": 5 },
+        { "id": 69, "question": "Quais ferramentas você usou para acessar Oracle?", "hint": "SQL Developer, TOAD, ferramentas de ORM como Hibernate.", "maxScore": 5 }
+      ]
+    },
+    {
+      "id": "comportamental",
+      "name": "Comportamental",
+      "questions": [
+        { "id": 70, "question": "Como você lida com feedback negativo?", "hint": "Recebo com maturidade, reflito e busco evoluir.", "maxScore": 5 },
+        { "id": 71, "question": "Já teve um desentendimento no time? Como resolveu?", "hint": "Sim, escutei, conversei com respeito e focamos na solução.", "maxScore": 5 },
+        { "id": 72, "question": "Como você mostra comprometimento em um projeto?", "hint": "Entrego no prazo, comunico dificuldades, me antecipo a problemas.", "maxScore": 5 },
+        { "id": 73, "question": "Você se considera fácil de lidar? Por quê?", "hint": "Sim, sou colaborativo, escuto bem e busco harmonia.", "maxScore": 5 },
+        { "id": 74, "question": "Como você ajuda colegas com dificuldades?", "hint": "Ofereço ajuda, explico com calma, proponho pair programming.", "maxScore": 5 },
+        { "id": 75, "question": "O que motiva sua saída da atual empresa?", "hint": "Oportunidade de carreira", "maxScore": 5 }
+      ]
+    }
+  ]
+}

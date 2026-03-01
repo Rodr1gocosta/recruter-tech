@@ -1,0 +1,16 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="#3B82F6"/>
+  
+  <!-- Icon content - Stylized "RT" for Recruter Tech -->
+  <g fill="white">
+    <!-- R -->
+    <path d="M 120 140 L 120 380 L 160 380 L 160 280 L 220 280 L 260 380 L 310 380 L 265 275 Q 280 265 290 245 Q 300 225 300 200 Q 300 165 280 152.5 Q 260 140 220 140 Z M 160 180 L 220 180 Q 240 180 250 190 Q 260 200 260 220 Q 260 240 250 250 Q 240 260 220 260 L 160 260 Z"/>
+    
+    <!-- T -->
+    <path d="M 320 140 L 320 180 L 380 180 L 380 380 L 420 380 L 420 180 L 480 180 L 480 140 Z"/>
+  </g>
+  
+  <!-- Small accent -->
+  <circle cx="456" cy="456" r="40" fill="#60A5FA" opacity="0.8"/>
+</svg>

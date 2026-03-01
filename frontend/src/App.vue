@@ -20,6 +20,18 @@
               <span class="hidden sm:inline">Gerenciar Dados</span>
             </button>
 
+            <!-- Questions Button -->
+            <button 
+              @click="openQuestionsModal"
+              class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg transition font-medium"
+              title="Gerenciar Perguntas"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="hidden sm:inline">Perguntas</span>
+            </button>
+
             <!-- Settings Button -->
             <button 
               @click="openSettings"
@@ -68,6 +80,13 @@
       @close="closeCrudModal"
       @update="handleCrudUpdate"
     />
+
+    <!-- Questions Modal -->
+    <QuestionsModal 
+      :isOpen="isQuestionsModalOpen" 
+      @close="closeQuestionsModal"
+      @update="handleQuestionsUpdate"
+    />
   </div>
 </template>
 
@@ -76,11 +95,13 @@ import { ref, onMounted } from 'vue';
 import { isElectron, getElectronInfo } from './utils/electron';
 import SettingsModal from './components/SettingsModal.vue';
 import CrudModal from './components/CrudModal.vue';
+import QuestionsModal from './components/QuestionsModal.vue';
 
 const isElectronApp = ref(false);
 const electronInfo = ref(null);
 const isSettingsOpen = ref(false);
 const isCrudModalOpen = ref(false);
+const isQuestionsModalOpen = ref(false);
 
 const openSettings = () => {
   isSettingsOpen.value = true;
@@ -107,6 +128,20 @@ const handleCrudUpdate = () => {
   console.log('Dados do CRUD atualizados');
   // Dispara evento para que StepInitial recarregue os dados
   window.dispatchEvent(new CustomEvent('crud-data-updated'));
+};
+
+const openQuestionsModal = () => {
+  isQuestionsModalOpen.value = true;
+};
+
+const closeQuestionsModal = () => {
+  isQuestionsModalOpen.value = false;
+};
+
+const handleQuestionsUpdate = () => {
+  console.log('Perguntas técnicas atualizadas');
+  // Dispara evento para que StepTechnical recarregue os dados
+  window.dispatchEvent(new CustomEvent('questions-updated'));
 };
 
 onMounted(async () => {

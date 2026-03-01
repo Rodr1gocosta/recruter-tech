@@ -159,7 +159,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { interviewAPI } from '../services/api';
 
 const props = defineProps(['data']);
@@ -171,6 +171,28 @@ const answers = ref({});
 const loading = ref(true);
 const saving = ref(false);
 const error = ref('');
+
+// Load questions from localStorage
+const loadQuestionsFromLocalStorage = () => {
+  const stored = localStorage.getItem('technicalQuestions');
+  if (stored) {
+    const categories = JSON.parse(stored);
+    return { categories };
+  }
+  return null;
+};
+
+// Migrate initial data from backend to localStorage
+const migrateDataToLocalStorage = async () => {
+  try {
+    const response = await interviewAPI.getQuestions();
+    localStorage.setItem('technicalQuestions', JSON.stringify(response.data.categories));
+    return response.data;
+  } catch (err) {
+    console.error('Erro ao migrar dados:', err);
+    return { categories: [] };
+  }
+};
 
 // Categorias filtradas com base na seleção
 const filteredCategories = computed(() => {
@@ -214,10 +236,19 @@ const toggleCategory = (categoryId) => {
   }
 };
 
-onMounted(async () => {
+// Load questions data
+const loadQuestions = async () => {
+  loading.value = true;
   try {
-    const response = await interviewAPI.getQuestions();
-    allCategories.value = response.data.categories;
+    // Try to load from localStorage first
+    let data = loadQuestionsFromLocalStorage();
+    
+    // If no data in localStorage, migrate from backend
+    if (!data || data.categories.length === 0) {
+      data = await migrateDataToLocalStorage();
+    }
+    
+    allCategories.value = data.categories;
     
     // Inicializar respostas para TODAS as perguntas (mesmo que não exibidas)
     allCategories.value.forEach(category => {
@@ -250,6 +281,21 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
+};
+
+onMounted(async () => {
+  await loadQuestions();
+  
+  // Listen for questions updates
+  const handleQuestionsUpdate = () => {
+    loadQuestions();
+  };
+  window.addEventListener('questions-updated', handleQuestionsUpdate);
+  
+  // Cleanup
+  onUnmounted(() => {
+    window.removeEventListener('questions-updated', handleQuestionsUpdate);
+  });
 });
 
 const handleNext = async () => {

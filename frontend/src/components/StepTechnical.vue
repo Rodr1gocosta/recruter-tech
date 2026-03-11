@@ -57,15 +57,28 @@
             </span>
           </div>
           
-          <div v-for="(question, index) in category.questions" :key="question.id" class="mb-5 bg-gray-50 p-4 md:p-5 rounded-lg border border-gray-200">
+          <div v-for="(question, index) in category.questions" :key="question.id" :class="[
+            'mb-5 p-4 md:p-5 rounded-lg border transition-all duration-200',
+            answers[question.id]?.skipped 
+              ? 'bg-orange-50 border-orange-300 opacity-75' 
+              : 'bg-gray-50 border-gray-200'
+          ]">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
               <!-- Pergunta e Conteúdo (9 colunas em desktop) -->
               <div class="md:col-span-9">
                 <div class="flex items-start mb-3">
-                  <span class="flex-shrink-0 w-6 h-6 bg-primary-600 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">
+                  <span :class="[
+                    'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3',
+                    answers[question.id]?.skipped ? 'bg-orange-400 text-white' : 'bg-primary-600 text-white'
+                  ]">
                     {{ index + 1 }}
                   </span>
-                  <p class="font-medium text-black flex-1">{{ question.question }}</p>
+                  <div class="flex-1">
+                    <p class="font-medium text-black">{{ question.question }}</p>
+                    <span v-if="answers[question.id]?.skipped" class="inline-block mt-1 text-xs bg-orange-500 text-white px-2 py-1 rounded-full">
+                      ⚠️ Não conta pontos
+                    </span>
+                  </div>
                 </div>
 
                 <!-- Hint/Resposta Esperada -->
@@ -80,7 +93,11 @@
                   </label>
                   <textarea 
                     v-model="answers[question.id].answer"
-                    class="input-field"
+                    :disabled="answers[question.id].skipped"
+                    :class="[
+                      'input-field',
+                      answers[question.id].skipped ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                    ]"
                     rows="2"
                     placeholder="Anote a resposta e suas observações..."
                   ></textarea>
@@ -94,7 +111,11 @@
                 </label>
                 <select 
                   v-model.number="answers[question.id].score"
-                  class="input-field text-center font-bold text-lg"
+                  :disabled="answers[question.id].skipped"
+                  :class="[
+                    'input-field text-center font-bold text-lg',
+                    answers[question.id].skipped ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                  ]"
                 >
                   <option :value="0">0 - Insuficiente</option>
                   <option :value="1">1 - Muito Fraco</option>
@@ -103,6 +124,22 @@
                   <option :value="4">4 - Bom</option>
                   <option :value="5">5 - Excelente</option>
                 </select>
+                
+                <!-- Botão Não Contar Ponto -->
+                <button
+                  @click="toggleSkipQuestion(question.id)"
+                  :class="[
+                    'mt-2 px-3 py-2 rounded-md text-xs font-medium transition-all duration-200 flex items-center justify-center',
+                    answers[question.id].skipped
+                      ? 'bg-orange-500 text-white hover:bg-orange-600'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ]"
+                >
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
+                  {{ answers[question.id].skipped ? 'Não Contando' : 'Não Contar Ponto' }}
+                </button>
               </div>
             </div>
           </div>
@@ -117,17 +154,22 @@
           </svg>
           Resumo da Avaliação Técnica
         </h3>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="bg-white p-3 rounded-lg">
-            <p class="text-xs text-white mb-1">Temas Avaliados:</p>
+            <p class="text-xs text-gray-600 mb-1">Temas Avaliados:</p>
             <p class="text-2xl font-bold text-gray-900">{{ selectedCategories.length }}</p>
           </div>
           <div class="bg-white p-3 rounded-lg">
-            <p class="text-xs text-white mb-1">Pontuação Total:</p>
+            <p class="text-xs text-gray-600 mb-1">Perguntas:</p>
+            <p class="text-2xl font-bold text-gray-900">{{ totalQuestions - skippedCount }}<span class="text-sm text-gray-500">/{{ totalQuestions }}</span></p>
+            <p v-if="skippedCount > 0" class="text-xs text-orange-600 mt-1">{{ skippedCount }} não contada(s)</p>
+          </div>
+          <div class="bg-white p-3 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">Pontuação Total:</p>
             <p class="text-2xl font-bold text-primary-900">{{ totalScore }}/{{ maxScore }}</p>
           </div>
           <div class="bg-white p-3 rounded-lg">
-            <p class="text-xs text-white mb-1">Percentual:</p>
+            <p class="text-xs text-gray-600 mb-1">Percentual:</p>
             <p class="text-2xl font-bold text-green-600">{{ scorePercentage }}%</p>
           </div>
         </div>
@@ -199,23 +241,29 @@ const filteredCategories = computed(() => {
   return allCategories.value.filter(cat => selectedCategories.value.includes(cat.id));
 });
 
-// Pontuação total apenas das perguntas das categorias selecionadas
+// Pontuação total apenas das perguntas das categorias selecionadas (excluindo as puladas)
 const totalScore = computed(() => {
   let total = 0;
   filteredCategories.value.forEach(category => {
     category.questions.forEach(question => {
-      total += answers.value[question.id]?.score || 0;
+      const answer = answers.value[question.id];
+      if (answer && !answer.skipped) {
+        total += answer.score || 0;
+      }
     });
   });
   return total;
 });
 
-// Pontuação máxima apenas das perguntas das categorias selecionadas
+// Pontuação máxima apenas das perguntas das categorias selecionadas (excluindo as puladas)
 const maxScore = computed(() => {
   let max = 0;
   filteredCategories.value.forEach(category => {
     category.questions.forEach(question => {
-      max += question.maxScore;
+      const answer = answers.value[question.id];
+      if (answer && !answer.skipped) {
+        max += question.maxScore;
+      }
     });
   });
   return max;
@@ -226,6 +274,28 @@ const scorePercentage = computed(() => {
   return ((totalScore.value / maxScore.value) * 100).toFixed(1);
 });
 
+// Contar perguntas puladas
+const skippedCount = computed(() => {
+  let count = 0;
+  filteredCategories.value.forEach(category => {
+    category.questions.forEach(question => {
+      if (answers.value[question.id]?.skipped) {
+        count++;
+      }
+    });
+  });
+  return count;
+});
+
+// Total de perguntas selecionadas
+const totalQuestions = computed(() => {
+  let count = 0;
+  filteredCategories.value.forEach(category => {
+    count += category.questions.length;
+  });
+  return count;
+});
+
 // Alternar seleção de categoria
 const toggleCategory = (categoryId) => {
   const index = selectedCategories.value.indexOf(categoryId);
@@ -233,6 +303,17 @@ const toggleCategory = (categoryId) => {
     selectedCategories.value.splice(index, 1);
   } else {
     selectedCategories.value.push(categoryId);
+  }
+};
+
+// Alternar se a pergunta deve ser pulada (não contar pontos)
+const toggleSkipQuestion = (questionId) => {
+  if (answers.value[questionId]) {
+    answers.value[questionId].skipped = !answers.value[questionId].skipped;
+    // Se marcar como pulada, zerar a pontuação
+    if (answers.value[questionId].skipped) {
+      answers.value[questionId].score = 0;
+    }
   }
 };
 
@@ -258,7 +339,8 @@ const loadQuestions = async () => {
           question: question.question,
           answer: '',
           score: 0,
-          maxScore: question.maxScore
+          maxScore: question.maxScore,
+          skipped: false // Campo para marcar se a pergunta não deve contar pontos
         };
       });
     });

@@ -7,16 +7,38 @@ const api = axios.create({
   }
 });
 
-// Interceptor para adicionar API key e provedor em todas as requisições
+// Interceptor para adicionar API keys e provedores em todas as requisições
 api.interceptors.request.use((config) => {
-  const apiKey = localStorage.getItem('openai_api_key');
-  const provider = localStorage.getItem('ai_provider') || 'openai';
+  // Carregar todas as chaves de API configuradas
+  const apiKeysStored = localStorage.getItem('api_keys');
   
-  if (apiKey) {
-    config.headers['X-OpenAI-Key'] = apiKey;
+  if (apiKeysStored) {
+    const apiKeys = JSON.parse(apiKeysStored);
+    const activeKeys = apiKeys.filter(k => k.enabled);
+    
+    if (activeKeys.length > 0) {
+      // Enviar as chaves como JSON no header, na ordem de prioridade
+      config.headers['X-API-Keys'] = JSON.stringify(
+        activeKeys.map(k => ({
+          provider: k.provider,
+          key: k.key
+        }))
+      );
+      
+      // Manter compatibilidade: enviar primeira chave ativa como principal
+      config.headers['X-OpenAI-Key'] = activeKeys[0].key;
+      config.headers['X-AI-Provider'] = activeKeys[0].provider;
+    }
+  } else {
+    // Fallback para o sistema antigo
+    const apiKey = localStorage.getItem('openai_api_key');
+    const provider = localStorage.getItem('ai_provider') || 'openai';
+    
+    if (apiKey) {
+      config.headers['X-OpenAI-Key'] = apiKey;
+      config.headers['X-AI-Provider'] = provider;
+    }
   }
-  
-  config.headers['X-AI-Provider'] = provider;
   
   return config;
 });

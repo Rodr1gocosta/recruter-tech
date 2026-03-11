@@ -85,8 +85,9 @@ export const saveTechnicalData = async (req, res) => {
 export const generateReport = async (req, res) => {
   try {
     const { sessionId, finalNotes, candidateInfo, situation } = req.body;
-    const apiKey = req.headers['x-openai-key']; // Obter a chave do header
+    const apiKey = req.headers['x-openai-key']; // Obter a chave do header (compatibilidade)
     const provider = req.headers['x-ai-provider'] || 'openai'; // Obter o provedor do header
+    const apiKeysHeader = req.headers['x-api-keys']; // Obter array de chaves
 
     if (!sessionId || !sessions.has(sessionId)) {
       return res.status(400).json({ error: 'Sessão inválida' });
@@ -110,8 +111,19 @@ export const generateReport = async (req, res) => {
       situation: situation
     };
 
-    // Gerar relatório com IA (passar a API key e o provedor)
-    const reportText = await generateInterviewReport(reportData, apiKey, provider);
+    // Parse do array de chaves se fornecido
+    let apiKeysArray = null;
+    if (apiKeysHeader) {
+      try {
+        apiKeysArray = JSON.parse(apiKeysHeader);
+        console.log(`📋 Recebidas ${apiKeysArray.length} chaves de API para fallback`);
+      } catch (e) {
+        console.error('Erro ao parsear chaves de API:', e);
+      }
+    }
+
+    // Gerar relatório com IA (passar a API key, provedor e array de chaves)
+    const reportText = await generateInterviewReport(reportData, apiKey, provider, apiKeysArray);
 
     // Gerar PDF
     const pdfResult = await generatePDF(reportData, reportText);

@@ -6,28 +6,61 @@ import Anthropic from '@anthropic-ai/sdk';
 
 dotenv.config();
 
-export async function generateInterviewReport(data, apiKey = null, provider = 'openai') {
-  // Usar a chave fornecida ou fallback para a variável de ambiente
+export async function generateInterviewReport(data, apiKey = null, provider = 'openai', apiKeysArray = null) {
+  // Se apiKeysArray foi fornecido, tenta múltiplas chaves em ordem
+  if (apiKeysArray && Array.isArray(apiKeysArray) && apiKeysArray.length > 0) {
+    let lastError = null;
+    
+    // Tenta cada chave na ordem de prioridade
+    for (let i = 0; i < apiKeysArray.length; i++) {
+      const keyConfig = apiKeysArray[i];
+      console.log(`🔑 Tentando provedor: ${keyConfig.provider} (chave #${i + 1}/${apiKeysArray.length})`);
+      
+      try {
+        const result = await generateWithProvider(data, keyConfig.key, keyConfig.provider);
+        console.log(`✅ Sucesso com ${keyConfig.provider} (chave #${i + 1})`);
+        return result;
+      } catch (error) {
+        lastError = error;
+        console.error(`❌ Falha com ${keyConfig.provider} (chave #${i + 1}):`, error.message);
+        
+        // Se não é a última chave, continua tentando
+        if (i < apiKeysArray.length - 1) {
+          console.log(`⏭️ Tentando próxima chave...`);
+          continue;
+        }
+      }
+    }
+    
+    // Se chegou aqui, todas as chaves falharam
+    throw new Error(`Todas as ${apiKeysArray.length} chaves de API falharam. Último erro: ${lastError?.message || 'Desconhecido'}`);
+  }
+  
+  // Fallback para o sistema antigo de chave única
   const key = apiKey || process.env.OPENAI_API_KEY;
   
   if (!key) {
     throw new Error(`API Key não fornecida. Configure a chave nas configurações.`);
   }
 
+  return await generateWithProvider(data, key, provider);
+}
+
+async function generateWithProvider(data, apiKey, provider) {
   // Direcionar para o provedor correto
   switch (provider) {
     case 'openai':
-      return await generateWithOpenAI(data, key);
+      return await generateWithOpenAI(data, apiKey);
     case 'gemini':
-      return await generateWithGemini(data, key);
+      return await generateWithGemini(data, apiKey);
     case 'anthropic':
-      return await generateWithAnthropic(data, key);
+      return await generateWithAnthropic(data, apiKey);
     case 'groq':
-      return await generateWithGroq(data, key);
+      return await generateWithGroq(data, apiKey);
     case 'cohere':
-      return await generateWithCohere(data, key);
+      return await generateWithCohere(data, apiKey);
     default:
-      return await generateWithOpenAI(data, key);
+      return await generateWithOpenAI(data, apiKey);
   }
 }
 

@@ -1,17 +1,37 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 import https from 'https';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import Anthropic from '@anthropic-ai/sdk';
 
 dotenv.config();
 
-export async function generateInterviewReport(data, apiKey = null) {
+export async function generateInterviewReport(data, apiKey = null, provider = 'openai') {
   // Usar a chave fornecida ou fallback para a variável de ambiente
   const key = apiKey || process.env.OPENAI_API_KEY;
   
   if (!key) {
-    throw new Error('API Key da OpenAI não fornecida. Configure a chave nas configurações.');
+    throw new Error(`API Key não fornecida. Configure a chave nas configurações.`);
   }
 
+  // Direcionar para o provedor correto
+  switch (provider) {
+    case 'openai':
+      return await generateWithOpenAI(data, key);
+    case 'gemini':
+      return await generateWithGemini(data, key);
+    case 'anthropic':
+      return await generateWithAnthropic(data, key);
+    case 'groq':
+      return await generateWithGroq(data, key);
+    case 'cohere':
+      return await generateWithCohere(data, key);
+    default:
+      return await generateWithOpenAI(data, key);
+  }
+}
+
+async function generateWithOpenAI(data, apiKey) {
   // Criar agente HTTPS que aceita certificados auto-assinados
   // Necessário em ambientes corporativos com proxies/firewalls
   const httpsAgent = new https.Agent({
@@ -19,9 +39,148 @@ export async function generateInterviewReport(data, apiKey = null) {
   });
 
   const openai = new OpenAI({
-    apiKey: key,
+    apiKey: apiKey,
     httpAgent: httpsAgent,
   });
+
+  const prompt = buildPrompt(data);
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo-preview',
+      messages: [
+        {
+          role: 'system',
+          content: 'Você é um especialista técnico em recrutamento que gera relatórios objetivos e estruturados de entrevistas técnicas. Siga rigorosamente o formato solicitado e baseie-se apenas nas informações fornecidas.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.5,
+      max_tokens: 2000
+    });
+
+    return response.choices[0].message.content;
+  } catch (error) {
+    console.error('Erro ao gerar relatório com OpenAI:', error);
+    throw new Error('Falha ao gerar relatório com IA');
+  }
+}
+
+async function generateWithGemini(data, apiKey) {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+  const prompt = buildPrompt(data);
+  
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error('Erro ao gerar relatório com Gemini:', error);
+    throw new Error('Falha ao gerar relatório com IA');
+  }
+}
+
+async function generateWithAnthropic(data, apiKey) {
+  const anthropic = new Anthropic({
+    apiKey: apiKey,
+  });
+
+  const prompt = buildPrompt(data);
+  
+  try {
+    const message = await anthropic.messages.create({
+      model: "claude-3-sonnet-20240229",
+      max_tokens: 2000,
+      temperature: 0.5,
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ]
+    });
+
+    return message.content[0].text;
+  } catch (error) {
+    console.error('Erro ao gerar relatório com Anthropic:', error);
+    throw new Error('Falha ao gerar relatório com IA');
+  }
+}
+
+async function generateWithGroq(data, apiKey) {
+  // Groq usa a API compatível com OpenAI
+  const httpsAgent = new https.Agent({
+    rejectUnauthorized: false
+  });
+
+  const groq = new OpenAI({
+    apiKey: apiKey,
+    baseURL: 'https://api.groq.com/openai/v1',
+    httpAgent: httpsAgent,
+  });
+
+  const prompt = buildPrompt(data);
+  
+  try {
+    const response = await groq.chat.completions.create({
+      model: 'llama3-70b-8192',
+      messages: [
+        {
+          role: 'system',
+          content: 'Você é um especialista técnico em recrutamento que gera relatórios objetivos e estruturados de entrevistas técnicas. Siga rigorosamente o formato solicitado e baseie-se apenas nas informações fornecidas.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.5,
+      max_tokens: 2000
+    });
+
+    return response.choices[0].message.content;
+  } catch (error) {
+    console.error('Erro ao gerar relatório com Groq:', error);
+    throw new Error('Falha ao gerar relatório com IA');
+  }
+}
+
+async function generateWithCohere(data, apiKey) {
+  const prompt = buildPrompt(data);
+  
+  try {
+    const response = await fetch('https://api.cohere.ai/v1/generate', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'command',
+        prompt: `Você é um especialista técnico em recrutamento que gera relatórios objetivos e estruturados de entrevistas técnicas. Siga rigorosamente o formato solicitado e baseie-se apenas nas informações fornecidas.\n\n${prompt}`,
+        max_tokens: 2000,
+        temperature: 0.5,
+      })
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'Erro na API Cohere');
+    }
+    
+    return result.generations[0].text;
+  } catch (error) {
+    console.error('Erro ao gerar relatório com Cohere:', error);
+    throw new Error('Falha ao gerar relatório com IA');
+  }
+}
+
+function buildPrompt(data) {
   const {
     candidateName,
     recruiter,
@@ -38,7 +197,7 @@ export async function generateInterviewReport(data, apiKey = null) {
     situation
   } = data;
 
-  const prompt = `
+  return `
 Gere um relatório técnico de entrevista no padrão estabelecido abaixo. Use como base:
 1. A validação técnica feita durante a entrevista (informações coletadas pelo entrevistador)
 2. O currículo do candidato
@@ -111,29 +270,6 @@ INSTRUÇÕES:
 - NÃO repita informações da seção "Experiência Validada"
 - Seja objetivo e conclusivo
 `;
-
-  try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
-      messages: [
-        {
-          role: 'system',
-          content: 'Você é um especialista técnico em recrutamento que gera relatórios objetivos e estruturados de entrevistas técnicas. Siga rigorosamente o formato solicitado e baseie-se apenas nas informações fornecidas.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.5,
-      max_tokens: 2000
-    });
-
-    return response.choices[0].message.content;
-  } catch (error) {
-    console.error('Erro ao gerar relatório com OpenAI:', error);
-    throw new Error('Falha ao gerar relatório com IA');
-  }
 }
 
 function formatTechnicalAnswers(answers) {

@@ -7,12 +7,17 @@ const api = axios.create({
   }
 });
 
-// Interceptor para adicionar API key em todas as requisições
+// Interceptor para adicionar API key e provedor em todas as requisições
 api.interceptors.request.use((config) => {
   const apiKey = localStorage.getItem('openai_api_key');
+  const provider = localStorage.getItem('ai_provider') || 'openai';
+  
   if (apiKey) {
     config.headers['X-OpenAI-Key'] = apiKey;
   }
+  
+  config.headers['X-AI-Provider'] = provider;
+  
   return config;
 });
 

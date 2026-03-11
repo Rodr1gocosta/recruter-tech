@@ -6,7 +6,8 @@ import {
   saveTechnicalData,
   generateReport,
   downloadPDF,
-  getQuestions
+  getQuestions,
+  getResume
 } from '../controllers/interviewController.js';
 
 const router = express.Router();
@@ -18,5 +19,6 @@ router.post('/technical', saveTechnicalData);
 router.post('/generate-report', generateReport);
 router.get('/download/:fileName', downloadPDF);
 router.get('/questions', getQuestions);
+router.get('/resume/:sessionId', getResume);
 
 export default router;

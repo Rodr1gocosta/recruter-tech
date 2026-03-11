@@ -3,9 +3,9 @@
     <h2 class="text-2xl font-bold text-white mb-2">2️⃣ Etapa Experiência (15 min)</h2>
     <p class="text-white mb-6">Anote as informações principais enquanto o candidato fala sobre suas experiências.</p>
     
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
       <!-- Formulário -->
-      <div class="lg:col-span-2 order-1 lg:order-1 space-y-4">
+      <div class="lg:col-span-3 order-1 lg:order-1 space-y-4">
       <div>
         <label class="block text-sm font-medium text-white mb-2">
           Experiências Principais
@@ -88,7 +88,7 @@
       </div>
 
       <!-- Guia de Experiência -->
-      <div class="lg:col-span-1 order-2 lg:order-2">
+      <div class="lg:col-span-2 order-2 lg:order-2 space-y-4">
         <div class="sticky top-4 bg-blue-50 rounded-lg p-4 border border-blue-200">
           <h3 class="font-bold text-blue-900 mb-3 flex items-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,7 +96,7 @@
             </svg>
             Guia de Experiência Validada
           </h3>
-          <div class="space-y-3 text-sm max-h-[600px] overflow-y-auto pr-2">
+          <div class="space-y-3 text-sm max-h-[450px] overflow-y-auto pr-2">
             <div v-for="(category, index) in experienceGuide" :key="index" class="bg-white rounded p-2 border border-gray-200">
               <label class="flex items-start cursor-pointer hover:bg-gray-50 p-1 rounded">
                 <input 
@@ -115,6 +115,23 @@
                 ✓ {{ checkedCount }}/{{ experienceGuide.length }} tópicos abordados
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Visualizador de Currículo -->
+        <div v-if="props.data.sessionId" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <h3 class="font-bold text-gray-900 mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            Currículo do Candidato
+          </h3>
+          <div class="bg-white rounded border border-gray-300 overflow-hidden">
+            <iframe 
+              :src="resumeUrl" 
+              class="w-full h-[600px]"
+              frameborder="0"
+            ></iframe>
           </div>
         </div>
       </div>
@@ -136,7 +153,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref, computed, onMounted } from 'vue';
 import { interviewAPI } from '../services/api';
 
 const props = defineProps(['data']);
@@ -152,6 +169,24 @@ const localData = reactive({
 
 const saving = ref(false);
 const error = ref('');
+
+// URL do currículo
+const resumeUrl = computed(() => {
+  if (props.data.sessionId) {
+    // Usa o proxy do Vite que redireciona /api para o backend
+    const url = `/api/interview/resume/${props.data.sessionId}`;
+    console.log('📄 Resume URL:', url);
+    console.log('📋 SessionId:', props.data.sessionId);
+    return url;
+  }
+  console.log('⚠️ SessionId não encontrado!', props.data);
+  return '';
+});
+
+onMounted(() => {
+  console.log('🔍 StepExperience montado - Dados recebidos:', props.data);
+  console.log('🆔 SessionId:', props.data.sessionId);
+});
 
 // Guia de Experiência Validada
 const experienceGuide = reactive([

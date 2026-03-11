@@ -86,6 +86,7 @@ export const generateReport = async (req, res) => {
   try {
     const { sessionId, finalNotes, candidateInfo, situation } = req.body;
     const apiKey = req.headers['x-openai-key']; // Obter a chave do header
+    const provider = req.headers['x-ai-provider'] || 'openai'; // Obter o provedor do header
 
     if (!sessionId || !sessions.has(sessionId)) {
       return res.status(400).json({ error: 'Sessão inválida' });
@@ -109,8 +110,8 @@ export const generateReport = async (req, res) => {
       situation: situation
     };
 
-    // Gerar relatório com IA (passar a API key)
-    const reportText = await generateInterviewReport(reportData, apiKey);
+    // Gerar relatório com IA (passar a API key e o provedor)
+    const reportText = await generateInterviewReport(reportData, apiKey, provider);
 
     // Gerar PDF
     const pdfResult = await generatePDF(reportData, reportText);
@@ -155,6 +156,27 @@ export const downloadPDF = async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao baixar PDF:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getResume = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    if (!sessionId || !sessions.has(sessionId)) {
+      return res.status(404).json({ error: 'Sessão não encontrada' });
+    }
+
+    const session = sessions.get(sessionId);
+    
+    if (!session.resumePath || !fs.existsSync(session.resumePath)) {
+      return res.status(404).json({ error: 'Currículo não encontrado' });
+    }
+
+    res.sendFile(path.resolve(session.resumePath));
+  } catch (error) {
+    console.error('Erro ao buscar currículo:', error);
     res.status(500).json({ error: error.message });
   }
 };

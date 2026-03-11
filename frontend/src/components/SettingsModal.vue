@@ -23,10 +23,31 @@
 
         <!-- Content -->
         <div class="space-y-6">
-          <!-- OpenAI API Key Section -->
+          <!-- AI Provider Selection -->
+          <div class="bg-blue-900/20 border border-blue-600/30 rounded-lg p-4">
+            <label class="block text-sm font-medium text-blue-400 mb-3">
+              🤖 Provedor de IA *
+            </label>
+            <select
+              v-model="selectedProvider"
+              @change="onProviderChange"
+              class="w-full bg-gray-700 text-white px-4 py-2 rounded border border-gray-600 focus:border-primary-500 focus:outline-none"
+            >
+              <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
+              <option value="gemini">Google AI (Gemini)</option>
+              <option value="anthropic">Anthropic (Claude)</option>
+              <option value="groq">Groq (Llama, Mixtral)</option>
+              <option value="cohere">Cohere</option>
+            </select>
+            <p class="text-xs text-gray-400 mt-2">
+              Selecione o provedor de IA que deseja utilizar
+            </p>
+          </div>
+
+          <!-- API Key Section -->
           <div class="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-4">
             <label class="block text-sm font-medium text-yellow-400 mb-3">
-              🔑 Chave da API OpenAI *
+              🔑 Chave da API {{ providerLabels[selectedProvider] }} *
             </label>
             
             <!-- Display Mode (quando a chave está salva) -->
@@ -61,7 +82,7 @@
                 v-model="apiKeyInput"
                 type="password" 
                 class="w-full bg-gray-700 text-white px-4 py-2 rounded border border-gray-600 focus:border-primary-500 focus:outline-none"
-                placeholder="sk-..."
+                :placeholder="keyPlaceholder"
                 @keyup.enter="saveKey"
               />
               <div class="flex gap-2">
@@ -84,7 +105,7 @@
 
             <p class="text-xs text-gray-400 mt-3">
               Sua chave é armazenada apenas localmente no navegador.
-              <a href="https://platform.openai.com/api-keys" target="_blank" class="text-primary-400 hover:underline">
+              <a :href="providerLinks[selectedProvider]" target="_blank" class="text-primary-400 hover:underline">
                 Obter chave aqui
               </a>
             </p>
@@ -102,6 +123,7 @@
         <!-- Footer Info -->
         <div class="mt-6 pt-6 border-t border-gray-700">
           <div class="text-xs text-gray-400 space-y-1">
+            <p><strong>Provedor:</strong> {{ providerLabels[selectedProvider] }}</p>
             <p><strong>Status:</strong> {{ hasApiKey ? '✅ Chave configurada' : '❌ Chave não configurada' }}</p>
           </div>
         </div>
@@ -125,6 +147,31 @@ const emit = defineEmits(['close', 'update']);
 const apiKeyInput = ref('');
 const isEditing = ref(false);
 const message = ref({ text: '', type: '' });
+const selectedProvider = ref(localStorage.getItem('ai_provider') || 'openai');
+
+const providerLabels = {
+  openai: 'OpenAI',
+  gemini: 'Google AI',
+  anthropic: 'Anthropic',
+  groq: 'Groq',
+  cohere: 'Cohere'
+};
+
+const providerLinks = {
+  openai: 'https://platform.openai.com/api-keys',
+  gemini: 'https://makersuite.google.com/app/apikey',
+  anthropic: 'https://console.anthropic.com/settings/keys',
+  groq: 'https://console.groq.com/keys',
+  cohere: 'https://dashboard.cohere.com/api-keys'
+};
+
+const providerPrefixes = {
+  openai: ['sk-'],
+  gemini: ['AI'],
+  anthropic: ['sk-ant-'],
+  groq: ['gsk_'],
+  cohere: []
+};
 
 // Computed
 const hasApiKey = computed(() => {
@@ -136,6 +183,17 @@ const maskedKey = computed(() => {
   const key = localStorage.getItem('openai_api_key');
   if (!key) return '';
   return 'sk-••••••••••••••••••••';
+});
+
+const keyPlaceholder = computed(() => {
+  const examples = {
+    openai: 'sk-...',
+    gemini: 'AIza...',
+    anthropic: 'sk-ant-...',
+    groq: 'gsk_...',
+    cohere: 'cole aqui sua chave'
+  };
+  return examples[selectedProvider.value] || 'Cole sua chave da API';
 });
 
 // Methods
@@ -156,9 +214,14 @@ const saveKey = () => {
     return;
   }
 
-  if (!apiKeyInput.value.startsWith('sk-')) {
-    showMessage('Chave inválida. Deve começar com "sk-"', 'error');
-    return;
+  // Validate key format based on provider
+  const prefixes = providerPrefixes[selectedProvider.value];
+  if (prefixes.length > 0) {
+    const hasValidPrefix = prefixes.some(prefix => apiKeyInput.value.startsWith(prefix));
+    if (!hasValidPrefix) {
+      showMessage(`Chave inválida. Deve começar com: ${prefixes.join(' ou ')}`, 'error');
+      return;
+    }
   }
 
   localStorage.setItem('openai_api_key', apiKeyInput.value.trim());
@@ -187,6 +250,14 @@ const showMessage = (text, type) => {
 
 const clearMessage = () => {
   message.value = { text: '', type: '' };
+};
+
+const onProviderChange = () => {
+  localStorage.setItem('ai_provider', selectedProvider.value);
+  // Clear existing key when switching providers
+  if (hasApiKey.value && !isEditing.value) {
+    showMessage('Provedor alterado. Configure a nova chave da API.', 'success');
+  }
 };
 
 const close = () => {

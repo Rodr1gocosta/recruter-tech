@@ -97,6 +97,7 @@
             <div v-if="isElectronApp">
               <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-white/20 text-white backdrop-blur-sm">
                 🖥️ Desktop App
+                <span v-if="electronInfo?.version" class="ml-2 opacity-75">v{{ electronInfo.version }}</span>
               </span>
             </div>
           </div>
@@ -115,7 +116,7 @@
         <div class="px-6 py-6 text-center">
           <p class="text-sm text-gray-400">© 2026 Recruter Tech - Todos os direitos reservados</p>
           <p v-if="isElectronApp && electronInfo" class="text-xs text-gray-500 mt-1">
-            Versão Desktop {{ electronInfo.value }} • Electron {{ electronInfo.electronVersion }}
+            Versão Desktop {{ electronInfo.version }} • Electron {{ electronInfo.electronVersion }}
           </p>
         </div>
       </footer>

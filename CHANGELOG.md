@@ -5,6 +5,10 @@
 ### 🔧 Corrigido
 - **Bug crítico** - Upload de currículo falhando no Electron (URL relativa `file:///C:/api`)
 - **Solução** - Detectar ambiente Electron e usar URL absoluta `http://localhost:3000/api`
+- **Footer** - Corrigido `electronInfo.value` → `electronInfo.version`
+
+### ✨ Melhorado
+- **Interface** - Versão da aplicação agora aparece no badge "🖥️ Desktop App v1.2.1" (header)
 - **Versão** - Sincronizada versão do package.json (1.2.1) com CHANGELOG
 
 ### 🎨 Geração de Ícones e Instalador Windows

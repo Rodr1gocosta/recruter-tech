@@ -36,6 +36,15 @@ function createWindow() {
     mainWindow.show();
   });
 
+  // Logs para debug
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('Failed to load:', errorCode, errorDescription);
+  });
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Page loaded successfully');
+  });
+
   // Carrega a aplicação
   if (isDev) {
     // Em desenvolvimento, usa o servidor Vite
@@ -43,7 +52,13 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   } else {
     // Em produção, carrega os arquivos buildados
-    mainWindow.loadFile(path.join(__dirname, '../frontend/dist/index.html'));
+    // __dirname em produção aponta para app.asar/electron
+    // Precisamos ir para app.asar/frontend/dist/index.html
+    const indexPath = path.join(__dirname, '..', 'frontend', 'dist', 'index.html');
+    console.log('Loading index from:', indexPath);
+    mainWindow.loadFile(indexPath).catch(err => {
+      console.error('Error loading file:', err);
+    });
   }
 
   mainWindow.on('closed', () => {

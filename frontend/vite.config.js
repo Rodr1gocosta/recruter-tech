@@ -22,6 +22,10 @@ export default defineConfig({
       output: {
         manualChunks: undefined
       }
-    }
+    },
+    // Garante que os assets sejam carregados corretamente
+    cssCodeSplit: false,
+    // Necessário para Electron
+    emptyOutDir: true
   }
 })

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getStorage } from '../utils/storage.js';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -10,10 +11,9 @@ const api = axios.create({
 // Interceptor para adicionar API keys e provedores em todas as requisições
 api.interceptors.request.use((config) => {
   // Carregar todas as chaves de API configuradas
-  const apiKeysStored = localStorage.getItem('api_keys');
+  const apiKeys = getStorage('api_keys', []);
   
-  if (apiKeysStored) {
-    const apiKeys = JSON.parse(apiKeysStored);
+  if (apiKeys && apiKeys.length > 0) {
     const activeKeys = apiKeys.filter(k => k.enabled);
     
     if (activeKeys.length > 0) {
@@ -31,8 +31,8 @@ api.interceptors.request.use((config) => {
     }
   } else {
     // Fallback para o sistema antigo
-    const apiKey = localStorage.getItem('openai_api_key');
-    const provider = localStorage.getItem('ai_provider') || 'openai';
+    const apiKey = getStorage('openai_api_key');
+    const provider = getStorage('ai_provider', 'openai');
     
     if (apiKey) {
       config.headers['X-OpenAI-Key'] = apiKey;

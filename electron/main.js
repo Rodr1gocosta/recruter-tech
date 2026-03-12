@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import isDev from 'electron-is-dev';
 import { spawn } from 'child_process';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,6 +14,41 @@ let backendProcess;
 // Configuração do backend
 const BACKEND_PORT = 3000;
 const FRONTEND_PORT = 5173;
+
+// Definir paths de dados para produção
+const DATA_PATHS = {
+  userData: app.getPath('userData'),
+  data: isDev 
+    ? path.join(process.cwd(), 'backend', 'data')
+    : path.join(app.getPath('userData'), 'data'),
+  uploads: isDev
+    ? path.join(process.cwd(), 'backend', 'uploads')
+    : path.join(app.getPath('userData'), 'uploads'),
+  sessions: isDev
+    ? path.join(process.cwd(), 'backend', 'data', 'sessions')
+    : path.join(app.getPath('userData'), 'data', 'sessions')
+};
+
+// Criar diretórios necessários
+function ensureDirectories() {
+  Object.entries(DATA_PATHS).forEach(([key, dir]) => {
+    if (key !== 'userData' && !fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log(`✅ Diretório criado: ${dir}`);
+    }
+  });
+  
+  // Copiar questions.json se não existir em produção
+  if (!isDev) {
+    const questionsSource = path.join(process.resourcesPath, 'backend', 'data', 'questions.json');
+    const questionsDest = path.join(DATA_PATHS.data, 'questions.json');
+    
+    if (fs.existsSync(questionsSource) && !fs.existsSync(questionsDest)) {
+      fs.copyFileSync(questionsSource, questionsDest);
+      console.log('✅ questions.json copiado para userData');
+    }
+  }
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -80,7 +116,10 @@ function startBackend() {
     env: {
       ...process.env,
       PORT: BACKEND_PORT,
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
+      DATA_PATH: DATA_PATHS.data,
+      UPLOADS_PATH: DATA_PATHS.uploads,
+      SESSIONS_PATH: DATA_PATHS.sessions
     }
   });
 
@@ -106,6 +145,9 @@ function stopBackend() {
 
 // Evento quando o Electron está pronto
 app.whenReady().then(() => {
+  // Criar diretórios necessários antes de iniciar
+  ensureDirectories();
+  
   startBackend();
   
   // Aguarda um pouco para o backend iniciar

@@ -1,4 +1,31 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import Store from 'electron-store';
+
+// Criar instância do store com schema
+const store = new Store({
+  schema: {
+    technicalReferences: {
+      type: 'array',
+      default: []
+    },
+    clients: {
+      type: 'array',
+      default: []
+    },
+    recruiters: {
+      type: 'array',
+      default: []
+    },
+    technicalQuestions: {
+      type: 'array',
+      default: []
+    },
+    api_keys: {
+      type: 'array',
+      default: []
+    }
+  }
+});
 
 // Expõe APIs seguras para o renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -19,7 +46,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
   chromeVersion: process.versions.chrome,
   
   // Versão do Electron
-  electronVersion: process.versions.electron
+  electronVersion: process.versions.electron,
+  
+  // Store API
+  store: {
+    get: (key, defaultValue) => store.get(key, defaultValue),
+    set: (key, value) => store.set(key, value),
+    delete: (key) => store.delete(key),
+    clear: () => store.clear(),
+    has: (key) => store.has(key),
+    // Obter todo o store
+    getAll: () => store.store,
+    // Definir múltiplos valores de uma vez
+    setMultiple: (object) => {
+      Object.entries(object).forEach(([key, value]) => {
+        store.set(key, value);
+      });
+    }
+  }
 });
 
 // Log quando o preload script é carregado

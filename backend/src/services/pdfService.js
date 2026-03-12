@@ -2,6 +2,9 @@ import PDFDocument from 'pdfkit';
 import fs from 'fs';
 import path from 'path';
 
+// Path configurável via variável de ambiente
+const UPLOADS_PATH = process.env.UPLOADS_PATH || path.join(process.cwd(), 'uploads');
+
 export async function generatePDF(reportData, reportText) {
   return new Promise((resolve, reject) => {
     try {
@@ -11,11 +14,11 @@ export async function generatePDF(reportData, reportText) {
       });
 
       const fileName = `relatorio-${reportData.candidateName.replace(/\s+/g, '-')}-${Date.now()}.pdf`;
-      const filePath = path.join(process.cwd(), 'uploads', fileName);
+      const filePath = path.join(UPLOADS_PATH, fileName);
 
       // Garantir que o diretório existe
-      if (!fs.existsSync('uploads')) {
-        fs.mkdirSync('uploads', { recursive: true });
+      if (!fs.existsSync(UPLOADS_PATH)) {
+        fs.mkdirSync(UPLOADS_PATH, { recursive: true });
       }
 
       const stream = fs.createWriteStream(filePath);

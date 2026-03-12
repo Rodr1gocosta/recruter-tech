@@ -202,6 +202,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { getStorage, setStorage } from '../utils/storage.js';
 
 const props = defineProps({
   isOpen: Boolean
@@ -230,20 +231,14 @@ const generateId = () => {
   return Date.now() + Math.random().toString(36).substring(2, 9);
 };
 
-// Load data from localStorage
+// Load data from storage
 const loadData = () => {
-  const stored = localStorage.getItem('technicalQuestions');
-  if (stored) {
-    categories.value = JSON.parse(stored);
-  } else {
-    // Initialize with empty array
-    categories.value = [];
-  }
+  categories.value = getStorage('technicalQuestions', []);
 };
 
-// Save data to localStorage
+// Save data to storage
 const saveData = () => {
-  localStorage.setItem('technicalQuestions', JSON.stringify(categories.value));
+  setStorage('technicalQuestions', categories.value);
   emit('update');
   showSuccess('Dados salvos com sucesso!');
 };

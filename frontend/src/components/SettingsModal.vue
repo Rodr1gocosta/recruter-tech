@@ -283,6 +283,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { getStorage, setStorage, removeStorage } from '../utils/storage.js';
 
 const props = defineProps({
   isOpen: {
@@ -325,15 +326,15 @@ const providerPrefixes = {
   cohere: []
 };
 
-// Load API keys from localStorage
+// Load API keys from storage
 const loadApiKeys = () => {
-  const stored = localStorage.getItem('api_keys');
-  if (stored) {
-    apiKeys.value = JSON.parse(stored);
+  const stored = getStorage('api_keys');
+  if (stored && Array.isArray(stored)) {
+    apiKeys.value = stored;
   } else {
     // Migrar chave antiga se existir
-    const oldKey = localStorage.getItem('openai_api_key');
-    const oldProvider = localStorage.getItem('ai_provider') || 'openai';
+    const oldKey = getStorage('openai_api_key');
+    const oldProvider = getStorage('ai_provider', 'openai');
     if (oldKey) {
       apiKeys.value = [{
         id: Date.now(),
@@ -342,19 +343,19 @@ const loadApiKeys = () => {
         enabled: true
       }];
       saveApiKeys();
-      localStorage.removeItem('openai_api_key');
+      removeStorage('openai_api_key');
     }
   }
 };
 
-// Save API keys to localStorage
+// Save API keys to storage
 const saveApiKeys = () => {
-  localStorage.setItem('api_keys', JSON.stringify(apiKeys.value));
+  setStorage('api_keys', apiKeys.value);
   // Mantém compatibilidade com código antigo - usa a primeira chave ativa
   const firstActiveKey = apiKeys.value.find(k => k.enabled);
   if (firstActiveKey) {
-    localStorage.setItem('openai_api_key', firstActiveKey.key);
-    localStorage.setItem('ai_provider', firstActiveKey.provider);
+    setStorage('openai_api_key', firstActiveKey.key);
+    setStorage('ai_provider', firstActiveKey.provider);
   }
   emit('update');
 };

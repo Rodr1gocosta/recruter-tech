@@ -248,6 +248,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { interviewAPI } from '../services/api';
+import { getStorage } from '../utils/storage.js';
 
 const props = defineProps(['data']);
 const emit = defineEmits(['next', 'update']);
@@ -280,9 +281,9 @@ const showRecruiterInput = ref(false);
 
 // Load CRUD data
 const loadCrudData = () => {
-  technicalReferences.value = JSON.parse(localStorage.getItem('technicalReferences') || '[]');
-  clients.value = JSON.parse(localStorage.getItem('clients') || '[]');
-  recruiters.value = JSON.parse(localStorage.getItem('recruiters') || '[]');
+  technicalReferences.value = getStorage('technicalReferences', []);
+  clients.value = getStorage('clients', []);
+  recruiters.value = getStorage('recruiters', []);
 };
 
 // Handle changes
@@ -375,8 +376,15 @@ const uploading = ref(false);
 const error = ref('');
 
 const hasApiKey = computed(() => {
-  const key = localStorage.getItem('openai_api_key');
-  return key && key.trim().length > 0;
+  const keys = getStorage('api_keys', []);
+  const hasActiveKey = keys.some(k => k.enabled && k.key && k.key.trim().length > 0);
+  
+  if (!hasActiveKey) {
+    // Fallback para chave antiga
+    const oldKey = getStorage('openai_api_key');
+    return oldKey && oldKey.trim().length > 0;
+  }
+  return true;
 });
 
 const isValid = computed(() => {

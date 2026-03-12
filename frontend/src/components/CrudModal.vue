@@ -145,6 +145,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { getStorage, setStorage } from '../utils/storage.js';
 
 const props = defineProps({
   isOpen: {
@@ -172,18 +173,18 @@ const technicalReferences = ref([]);
 const clients = ref([]);
 const recruiters = ref([]);
 
-// Load from localStorage
+// Load from storage
 const loadData = () => {
-  technicalReferences.value = JSON.parse(localStorage.getItem('technicalReferences') || '[]');
-  clients.value = JSON.parse(localStorage.getItem('clients') || '[]');
-  recruiters.value = JSON.parse(localStorage.getItem('recruiters') || '[]');
+  technicalReferences.value = getStorage('technicalReferences', []);
+  clients.value = getStorage('clients', []);
+  recruiters.value = getStorage('recruiters', []);
 };
 
-// Save to localStorage
+// Save to storage
 const saveData = () => {
-  localStorage.setItem('technicalReferences', JSON.stringify(technicalReferences.value));
-  localStorage.setItem('clients', JSON.stringify(clients.value));
-  localStorage.setItem('recruiters', JSON.stringify(recruiters.value));
+  setStorage('technicalReferences', technicalReferences.value);
+  setStorage('clients', clients.value);
+  setStorage('recruiters', recruiters.value);
   emit('update');
 };
 

@@ -1,6 +1,7 @@
 import { generateInterviewReport } from '../services/aiService.js';
 import { generatePDF } from '../services/pdfService.js';
 import { extractTextFromPDF } from '../services/resumeService.js';
+import { saveSession, loadSession, updateSession, deleteSession } from '../services/sessionService.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,8 +9,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Armazém em memória (stateless - pode usar Redis em produção)
-const sessions = new Map();
+// Paths configuráveis via variáveis de ambiente
+const DATA_PATH = process.env.DATA_PATH || path.join(process.cwd(), 'data');
+const UPLOADS_PATH = process.env.UPLOADS_PATH || path.join(process.cwd(), 'uploads');
 
 export const uploadResume = async (req, res) => {
   try {
@@ -20,12 +22,15 @@ export const uploadResume = async (req, res) => {
     const sessionId = Date.now().toString();
     const resumeText = await extractTextFromPDF(req.file.path);
 
-    sessions.set(sessionId, {
+    const sessionData = {
       sessionId,
       resumePath: req.file.path,
       resumeText,
       createdAt: new Date()
-    });
+    };
+
+    // Salvar em disco
+    saveSession(sessionId, sessionData);
 
     res.json({
       success: true,
@@ -42,13 +47,13 @@ export const saveExperienceData = async (req, res) => {
   try {
     const { sessionId, experienceNotes } = req.body;
 
-    if (!sessionId || !sessions.has(sessionId)) {
+    const session = loadSession(sessionId);
+    if (!sessionId || !session) {
       return res.status(400).json({ error: 'Sessão inválida' });
     }
 
-    const session = sessions.get(sessionId);
-    session.experienceNotes = experienceNotes;
-    sessions.set(sessionId, session);
+    // Atualizar sessão com dados de experiência
+    updateSession(sessionId, { experienceNotes });
 
     res.json({
       success: true,
@@ -64,13 +69,13 @@ export const saveTechnicalData = async (req, res) => {
   try {
     const { sessionId, technicalAnswers } = req.body;
 
-    if (!sessionId || !sessions.has(sessionId)) {
+    const session = loadSession(sessionId);
+    if (!sessionId || !session) {
       return res.status(400).json({ error: 'Sessão inválida' });
     }
 
-    const session = sessions.get(sessionId);
-    session.technicalAnswers = technicalAnswers;
-    sessions.set(sessionId, session);
+    // Atualizar sessão com dados técnicos
+    updateSession(sessionId, { technicalAnswers });
 
     res.json({
       success: true,
@@ -89,11 +94,10 @@ export const generateReport = async (req, res) => {
     const provider = req.headers['x-ai-provider'] || 'openai'; // Obter o provedor do header
     const apiKeysHeader = req.headers['x-api-keys']; // Obter array de chaves
 
-    if (!sessionId || !sessions.has(sessionId)) {
+    const session = loadSession(sessionId);
+    if (!sessionId || !session) {
       return res.status(400).json({ error: 'Sessão inválida' });
     }
-
-    const session = sessions.get(sessionId);
 
     const reportData = {
       candidateName: candidateInfo.name,
@@ -128,11 +132,11 @@ export const generateReport = async (req, res) => {
     // Gerar PDF
     const pdfResult = await generatePDF(reportData, reportText);
 
-    // Limpar sessão
+    // Limpar sessão e arquivos
     if (session.resumePath && fs.existsSync(session.resumePath)) {
       fs.unlinkSync(session.resumePath);
     }
-    sessions.delete(sessionId);
+    deleteSession(sessionId);
 
     res.json({
       success: true,
@@ -149,7 +153,7 @@ export const generateReport = async (req, res) => {
 export const downloadPDF = async (req, res) => {
   try {
     const { fileName } = req.params;
-    const filePath = path.join(process.cwd(), 'uploads', fileName);
+    const filePath = path.join(UPLOADS_PATH, fileName);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Arquivo não encontrado' });
@@ -176,11 +180,10 @@ export const getResume = async (req, res) => {
   try {
     const { sessionId } = req.params;
 
-    if (!sessionId || !sessions.has(sessionId)) {
+    const session = loadSession(sessionId);
+    if (!sessionId || !session) {
       return res.status(404).json({ error: 'Sessão não encontrada' });
     }
-
-    const session = sessions.get(sessionId);
     
     if (!session.resumePath || !fs.existsSync(session.resumePath)) {
       return res.status(404).json({ error: 'Currículo não encontrado' });
@@ -195,7 +198,7 @@ export const getResume = async (req, res) => {
 
 export const getQuestions = async (req, res) => {
   try {
-    const questionsPath = path.join(process.cwd(), 'data', 'questions.json');
+    const questionsPath = path.join(DATA_PATH, 'questions.json');
     const questionsData = JSON.parse(fs.readFileSync(questionsPath, 'utf8'));
     res.json(questionsData);
   } catch (error) {

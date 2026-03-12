@@ -203,6 +203,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { interviewAPI } from '../services/api';
+import { getStorage, setStorage } from '../utils/storage.js';
 
 const props = defineProps(['data']);
 const emit = defineEmits(['next', 'back', 'update']);
@@ -214,21 +215,20 @@ const loading = ref(true);
 const saving = ref(false);
 const error = ref('');
 
-// Load questions from localStorage
+// Load questions from storage
 const loadQuestionsFromLocalStorage = () => {
-  const stored = localStorage.getItem('technicalQuestions');
-  if (stored) {
-    const categories = JSON.parse(stored);
-    return { categories };
+  const stored = getStorage('technicalQuestions');
+  if (stored && Array.isArray(stored)) {
+    return { categories: stored };
   }
   return null;
 };
 
-// Migrate initial data from backend to localStorage
+// Migrate initial data from backend to storage
 const migrateDataToLocalStorage = async () => {
   try {
     const response = await interviewAPI.getQuestions();
-    localStorage.setItem('technicalQuestions', JSON.stringify(response.data.categories));
+    setStorage('technicalQuestions', response.data.categories);
     return response.data;
   } catch (err) {
     console.error('Erro ao migrar dados:', err);

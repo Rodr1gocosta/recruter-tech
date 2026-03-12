@@ -20,12 +20,13 @@
     "postinstall": "cd frontend && npm install && cd ../backend && npm install"
   },
   "dependencies": {
-    "electron-is-dev": "^3.0.1"
+    "electron-is-dev": "^3.0.1",
+    "electron-store": "^11.0.2"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "electron": "^28.2.0",
     "electron-builder": "^24.9.1",
-    "concurrently": "^8.2.2",
     "wait-on": "^7.2.0"
   },
   "build": {
@@ -47,15 +48,24 @@
       {
         "from": "backend",
         "to": "backend",
-        "filter": ["**/*", "!node_modules", "!uploads"]
+        "filter": [
+          "**/*",
+          "!node_modules",
+          "!uploads"
+        ]
       }
     ],
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "build/icon.ico"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "icon": "build/icon.png",
       "category": "Office"
     },

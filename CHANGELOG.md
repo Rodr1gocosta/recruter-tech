@@ -2,6 +2,11 @@
 
 ## [1.2.1] - 2026-03-12
 
+### 🔧 Corrigido
+- **Bug crítico** - Upload de currículo falhando no Electron (URL relativa `file:///C:/api`)
+- **Solução** - Detectar ambiente Electron e usar URL absoluta `http://localhost:3000/api`
+- **Versão** - Sincronizada versão do package.json (1.2.1) com CHANGELOG
+
 ### 🎨 Geração de Ícones e Instalador Windows
 - **Adicionado** geração automática de ícones a partir do SVG
 - **Criado** `build/icon.ico` (Windows) e `build/icon.png` (Linux)

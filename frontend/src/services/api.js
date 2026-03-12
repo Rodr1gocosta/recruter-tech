@@ -1,8 +1,25 @@
 import axios from 'axios';
 import { getStorage } from '../utils/storage.js';
+import { isElectron } from '../utils/electron.js';
+
+// Detectar ambiente e definir baseURL apropriada
+const getBaseURL = () => {
+  // Se tem variável de ambiente definida, usar ela
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Se está no Electron, usar URL absoluta do backend
+  if (isElectron()) {
+    return 'http://localhost:3000/api';
+  }
+  
+  // Modo web/Docker: usar URL relativa
+  return '/api';
+};
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json'
   }

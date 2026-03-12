@@ -1,103 +1,191 @@
 # 🎯 Recruter Tech - Sistema de Entrevistas Técnicas
 
-Sistema completo e stateless para conduzir entrevistas técnicas e gerar relatórios profissionais usando Inteligência Artificial.
+Sistema completo para conduzir entrevistas técnicas e gerar relatórios profissionais usando Inteligência Artificial. Disponível como **aplicação web (Docker)** ou **aplicação desktop (Electron)**.
 
 ## 📋 Sobre o Projeto
 
-O **Recruter Tech** é uma aplicação web moderna que automatiza e otimiza o processo de entrevistas técnicas, permitindo que recrutadores:
+O **Recruter Tech** automatiza e otimiza o processo de entrevistas técnicas, permitindo que recrutadores:
 
 - ✅ Coletem informações estruturadas dos candidatos
 - ✅ Processem currículos em PDF automaticamente
 - ✅ Conduzam entrevistas divididas em etapas claras
 - ✅ Avaliem competências técnicas com pontuação objetiva
-- ✅ Gerem relatórios profissionais usando IA (OpenAI GPT-4)
+- ✅ Gerem relatórios profissionais usando IA (OpenAI, Google Gemini, Anthropic, etc.)
 - ✅ Exportem relatórios em PDF de alta qualidade
+- ✅ **Persistência de dados** - Sessões salvas automaticamente
 
-## 🏗️ Arquitetura
+## 🚀 Início Rápido
+
+### 🖥️ **Modo Desktop (Recomendado para uso local)**
+
+```bash
+# 1. Instalar dependências (primeira vez)
+npm install
+
+# 2. Executar aplicação
+npm run dev         # Ou use os scripts: desktop.bat (Windows) / ./desktop.sh (Linux)
+```
+
+### 🐳 **Modo Docker (Recomendado para servidor)**
+
+```bash
+# 1. Configurar variáveis de ambiente
+cp .env.example .env
+# Edite .env e adicione sua OPENAI_API_KEY
+
+# 2. Iniciar containers
+docker-compose up -d
+
+# 3. Acessar
+http://localhost
+```
+
+## 📁 Estrutura do Projeto
 
 ```
 recruter-tech/
-├── frontend/              # Vue 3 + Vite + Tailwind CSS
+├── 📄 README.md                    # Documentação principal
+├── 📄 CHANGELOG.md                 # Histórico de versões
+├── 📄 TROUBLESHOOTING.md           # Solução de problemas
+├── 📄 package.json                 # Configuração Electron (raiz)
+├── 🔧 desktop.sh / desktop.bat     # Scripts para executar desktop
+├── 🔧 start.sh / start.bat         # Scripts para Docker
+│
+├── 📂 electron/                    # 🖥️ Aplicação Desktop
+│   ├── main.js                     # Processo principal Electron
+│   └── preload.js                  # Preload script (segurança)
+│
+├── 📂 frontend/                    # 🎨 Interface Vue.js
 │   ├── src/
-│   │   ├── components/   # Componentes das etapas
-│   │   ├── views/        # View principal
-│   │   ├── services/     # Serviços API
-│   │   └── main.js
-│   └── Dockerfile
-├── backend/              # Node.js + Express
+│   │   ├── components/             # Componentes das etapas
+│   │   ├── views/                  # InterviewFlow principal
+│   │   ├── services/               # API, storage
+│   │   └── utils/                  # Utilitários (storage.js)
+│   ├── vite.config.js
+│   └── package.json
+│
+├── 📂 backend/                     # ⚙️ API Node.js
 │   ├── src/
-│   │   ├── controllers/  # Lógica de negócio
-│   │   ├── routes/       # Endpoints da API
-│   │   └── services/     # Serviços (IA, PDF, etc)
+│   │   ├── controllers/            # Lógica de negócio
+│   │   ├── routes/                 # Endpoints REST
+│   │   ├── services/               # IA, PDF, sessões
+│   │   └── config/                 # Multer, etc
 │   ├── data/
-│   │   └── questions.json # Perguntas técnicas
-│   └── Dockerfile
-└── docker-compose.yml    # Orquestração dos containers
+│   │   ├── questions.json          # Perguntas técnicas
+│   │   └── sessions/               # Sessões salvas (produção)
+│   └── package.json
+│
+└── 📂 build/                       # 🎨 Recursos para build
+    └── icons/                      # Ícones da aplicação
 ```
 
 ## 🚀 Tecnologias Utilizadas
 
 ### Frontend
 - **Vue 3** (Composition API) - Framework progressivo
-- **Vite 5** - Build tool super rápido
+- **Vite 5** - Build tool ultra rápido
 - **Tailwind CSS 3** - Framework CSS utilitário
 - **Vue Router 4** - Roteamento
 - **Axios** - Cliente HTTP
 
 ### Backend
 - **Node.js 20+** - Runtime JavaScript
-- **Express** - Framework web
-- **OpenAI API** - Geração de relatórios com IA
-- **PDFKit** - Geração de PDFs
+- **Express** - Framework web minimalista
+- **OpenAI API / Google Gemini** - Geração de relatórios com IA
+- **PDFKit** - Geração de PDFs profissionais
 - **Multer** - Upload de arquivos
 - **pdf-parse** - Extração de texto de PDFs
 
+### Desktop
+- **Electron 28** - Framework para aplicações desktop
+- **electron-builder** - Empacotamento para Windows e Linux
+- **electron-store** - Persistência de dados local
+
 ### DevOps
 - **Docker** - Containerização
-- **Docker Compose** - Orquestração
-- **Nginx** - Servidor web para o frontend
+- **Docker Compose** - Orquestração de containers
+- **Nginx** - Servidor web para frontend
 
-### Desktop
-- **Electron 28** - Framework para apps desktop
-- **electron-builder** - Empacotamento para Windows e Linux
+---
 
-## 🖥️ Versão Desktop
+## 🖥️ Instalação e Uso - Modo Desktop
 
-Este projeto também pode ser executado como **aplicação desktop** para Windows e Linux!
-
-### Executar Desktop
+### Primeira Instalação
 
 ```bash
-# Linux
+# 1. Instalar todas as dependências
+npm install
+
+# Isso instala dependências da raiz, frontend e backend automaticamente
+```
+
+### Executar em Desenvolvimento
+
+**Linux/Mac:**
+```bash
 chmod +x desktop.sh
 ./desktop.sh
+```
 
-# Windows
+**Windows:**
+```bash
 desktop.bat
 ```
 
-### Build Desktop
+**Ou diretamente:**
+```bash
+npm run dev
+```
+
+Isso irá:
+1. ✅ Iniciar o backend (porta 3000)
+2. ✅ Iniciar o frontend (porta 5173)
+3. ✅ Abrir aplicação Electron automaticamente
+
+### Build para Produção
 
 ```bash
-# Build para Windows
+# Windows (gera instalador .exe)
 npm run build:win
 
-# Build para Linux
+# Linux (gera AppImage e .deb)
 npm run build:linux
 
-# Build para ambos
+# Ambos
 npm run build:all
 ```
 
-📖 **Documentação completa**: Veja [DESKTOP.md](DESKTOP.md) para instruções detalhadas.
+**Executáveis gerados em:** `dist-electron/`
 
-## 📦 Pré-requisitos
+### 📁 Onde os Dados Ficam (Desktop)
 
+**Em Desenvolvimento:**
+- Dados: `./backend/data/`
+- Uploads: `./backend/uploads/`
+- Sessões: `./backend/data/sessions/`
+
+**Em Produção (Executável):**
+```
+C:\Users\{seu_usuario}\AppData\Roaming\recruter-tech\
+├── config.json              # Configurações (electron-store)
+├── data/
+│   ├── questions.json       # Perguntas técnicas
+│   └── sessions/            # Sessões de entrevista
+└── uploads/                 # Arquivos temporários
+```
+
+---
+
+## 🐳 Instalação e Uso - Modo Docker
+
+---
+
+## 🐳 Instalação e Uso - Modo Docker
+
+### Pré-requisitos
 - Docker 20.10+
 - Docker Compose 2.0+
-- Chave de API da OpenAI ([Obter aqui](https://platform.openai.com/api-keys))
-
-## ⚙️ Instalação e Configuração
+- Chave de API OpenAI ([Obter aqui](https://platform.openai.com/api-keys))
 
 ### 1. Clone o repositório
 
@@ -107,8 +195,6 @@ cd recruter-tech
 ```
 
 ### 2. Configure as variáveis de ambiente
-
-Copie o arquivo de exemplo e adicione sua chave da OpenAI:
 
 ```bash
 cp .env.example .env
@@ -202,40 +288,70 @@ Edite o arquivo `backend/data/questions.json` para customizar as perguntas:
 
 ## 🛠️ Comandos Úteis
 
-### Desenvolvimento Local (sem Docker)
+### Desktop - Desenvolvimento
 
-**Backend:**
 ```bash
-cd backend
-npm install
-cp .env.example .env  # Configure a API key
+# Iniciar aplicação completa
 npm run dev
+
+# Ou usar scripts auxiliares
+./desktop.sh          # Linux/Mac
+desktop.bat           # Windows
+
+# Iniciar apenas backend
+npm run dev:backend
+
+# Iniciar apenas frontend  
+npm run dev:frontend
+
+# Iniciar apenas Electron (requer backend e frontend rodando)
+npm run dev:electron
 ```
 
-**Frontend:**
+### Desktop - Build e Distribuição
+
 ```bash
-cd frontend
-npm install
-npm run dev
+# Build frontend + backend
+npm run build
+
+# Build do frontend
+npm run build:frontend
+
+# Empacotar para Windows (instalador .exe)
+npm run build:win
+
+# Empacotar para Linux (AppImage + .deb)
+npm run build:linux
+
+# Empacotar para ambos
+npm run build:all
 ```
 
-### Docker
+### Docker - Gerenciamento
 
 ```bash
 # Iniciar containers
 docker-compose up -d
 
-# Ver logs
+# Ver logs em tempo real
 docker-compose logs -f
+
+# Ver logs de um serviço específico
+docker-compose logs -f backend
+docker-compose logs -f frontend
 
 # Parar containers
 docker-compose down
 
-# Rebuild após mudanças
+# Rebuild após mudanças no código
 docker-compose up -d --build
 
-# Ver status
+# Ver status dos containers
 docker-compose ps
+
+# Entrar no container
+docker-compose exec backend sh
+docker-compose exec frontend sh
 ```
 
 ## 📊 API Endpoints
@@ -249,13 +365,33 @@ docker-compose ps
 | GET | `/api/interview/questions` | Obter perguntas técnicas |
 | GET | `/api/interview/download/:fileName` | Download do PDF |
 
-## 🔒 Segurança
+## 🔒 Segurança e Dados
 
+### Segurança
 - ✅ Validação de tipos de arquivo (apenas PDF)
 - ✅ Limite de tamanho de arquivo (5MB)
-- ✅ CORS configurado
+- ✅ CORS configurado adequadamente
 - ✅ Variáveis de ambiente para credenciais
-- ✅ Cleanup automático de arquivos temporários
+- ✅ Context isolation no Electron
+- ✅ Preload script para segurança
+
+### Persistência de Dados
+
+**Frontend (electron-store):**
+- Chaves de API (OpenAI, Gemini, Anthropic, etc.)
+- Clientes, Recrutadores, Referências Técnicas
+- Perguntas técnicas customizadas
+- Configurações do usuário
+
+**Backend (Arquivos JSON):**
+- Sessões de entrevista em andamento (salvas automaticamente)
+- Histórico de sessões (até deletar manualmente)
+- Limpeza automática de sessões antigas (>7 dias)
+
+**Arquivos Temporários:**
+- Currículos (deletados após gerar relatório)
+- PDFs de relatórios (deletados 5 segundos após download)
+- Cleanup automático
 
 ## 🎨 Customização
 
@@ -279,25 +415,137 @@ theme: {
 
 Edite `backend/src/services/aiService.js` para customizar o prompt da IA.
 
-## 🐛 Troubleshooting
+## � Configuração de Chaves de API
+
+O sistema suporta múltiplos provedores de IA com fallback automático:
+
+### Provedores Suportados
+- **OpenAI** (GPT-4, GPT-3.5)
+- **Google Gemini** (Gemini Pro)
+- **Anthropic** (Claude)
+- **Groq** (Llama, Mixtral)
+- **Cohere**
+
+### Como Configurar
+
+**No Desktop:**
+1. Clique em **⚙️ Configurações** no canto superior direito
+2. Adicione suas chaves de API
+3. Ative/desative chaves conforme necessário
+4. O sistema tenta em ordem de prioridade com fallback automático
+
+**No Docker:**
+Use o arquivo `.env`:
+```env
+OPENAI_API_KEY=sk-...
+```
+
+### Obter Chaves de API
+- OpenAI: https://platform.openai.com/api-keys
+- Google AI: https://makersuite.google.com/app/apikey
+- Anthropic: https://console.anthropic.com/settings/keys
+- Groq: https://console.groq.com/keys
+- Cohere: https://dashboard.cohere.com/api-keys
+
+---
+
+## 📝 Personalização
+
+### Customizar Perguntas Técnicas
+
+**Na Aplicação:**
+Clique em **❓ Perguntas** no menu lateral para:
+- Criar novos temas
+- Adicionar/editar perguntas
+- Definir pontuação máxima
+- Adicionar dicas para cada pergunta
+
+**Manualmente:**
+Edite `backend/data/questions.json`:
+
+```json
+{
+  "categories": [
+    {
+      "id": "frontend",
+      "name": "Frontend",
+      "questions": [
+        {
+          "id": 1,
+          "question": "Sua pergunta aqui?",
+          "hint": "Dica opcional para o avaliador",
+          "maxScore": 5
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Customizar Cores e Estilo
+
+Edite `frontend/tailwind.config.js`:
+
+```javascript
+theme: {
+  extend: {
+    colors: {
+      primary: {
+        50: '#e6f0f2',
+        // ... suas cores personalizadas
+      }
+    }
+  }
+}
+```
+
+### Customizar Modelo de Relatório
+
+Edite `backend/src/services/aiService.js` para ajustar o prompt enviado à IA.
+
+---
+
+## 🐛 Solução de Problemas
+
+Para problemas comuns e soluções detalhadas, veja [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
+**Problemas mais comuns:**
+
+### Desktop: Formulário não aparece
+- Verifique o console do DevTools (F12)
+- Certifique-se que todos os imports estão corretos
+- Rode `npm install` novamente na raiz
 
 ### Erro: "Falha ao gerar relatório com IA"
-- Verifique se a `OPENAI_API_KEY` está configurada corretamente
-- Confirme que você tem créditos na sua conta OpenAI
-- Verifique os logs: `docker-compose logs backend`
+- Verifique se a chave de API está configurada corretamente
+- Confirme que você tem créditos disponíveis
+- Tente usar outro provedor (fallback automático)
+- Verifique os logs do backend
 
 ### Erro ao fazer upload de PDF
 - Certifique-se que o arquivo é um PDF válido
 - Verifique se o tamanho é menor que 5MB
+- Confirme que o backend está rodando
 
-### Frontend não conecta ao backend
+### Docker: Frontend não conecta ao backend
 - Verifique se ambos os containers estão rodando: `docker-compose ps`
 - Confira os logs: `docker-compose logs`
+- Tente rebuild: `docker-compose up -d --build`
 
-## 📈 Melhorias Futuras
+---
+
+## 📈 Roadmap e Melhorias Futuras
 
 - [ ] Autenticação de usuários
-- [ ] Banco de dados para persistência
+- [ ] Banco de dados (PostgreSQL)
+- [ ] Histórico de entrevistas com busca
+- [ ] Dashboard com estatísticas
+- [ ] Exportar/importar dados
+- [ ] Suporte a templates de relatório customizáveis
+- [ ] Integração com sistemas de ATS
+- [ ] Modo offline (PWA)
+- [ ] Temas claro/escuro
+- [ ] Internacionalização (i18n)
 - [ ] Múltiplos idiomas
 - [ ] Temas claro/escuro
 - [ ] Exportação para Word

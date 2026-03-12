@@ -1,5 +1,49 @@
 # Changelog
 
+## [1.2.0] - 2026-03-12
+
+### 🚀 Adicionado
+- **electron-store** - Persistência consistente de dados entre dev e produção
+- **Persistência de sessões** - Sessões agora salvas em disco (`data/sessions/`)
+- **Múltiplos provedores de IA** - Suporte a OpenAI, Google Gemini, Anthropic, Groq, Cohere
+- **Fallback automático** - Sistema tenta múltiplas chaves de API automaticamente
+- **Limpeza automática** - Sessões antigas (>7 dias) são removidas automaticamente
+- **Migração automática** - Dados do localStorage migrados para electron-store
+
+### 🔧 Corrigido
+- **Paths em produção** - Dados agora salvos corretamente em `AppData/Roaming/recruter-tech`
+- **questions.json** - Copiado automaticamente para userData na primeira execução
+- **Vue Router** - Mudado de `createWebHistory` para `createWebHashHistory` (fix Electron)
+- **Formulário Step 1** - Adicionado import faltante de `getStorage`
+- **Build Vite** - Otimizações para Electron (`cssCodeSplit: false`)
+
+### 📝 Modificado
+- **Documentação consolidada** - Removidos arquivos .md redundantes (7 arquivos)
+- **README.md** - Completamente reescrito com todas as informações centralizadas
+- **sessionService.js** - Novo serviço para gerenciar sessões em disco
+- **storage.js** - Novo utilitário com fallback localStorage → electron-store
+
+### 🗑️ Removido
+- `FIX_ELECTRON_DESKTOP.md` - Correções já aplicadas, obsoleto
+- `AJUSTES_PRODUCAO.md` - Mudanças já aplicadas, obsoleto
+- `GUIA_RAPIDO.md` - Consolidado no README
+- `DESKTOP_QUICKSTART.md` - Consolidado no README
+- `DESKTOP.md` - Consolidado no README
+- `COMMANDS.md` - Consolidado no README
+- `ESTRUTURA.md` - Consolidado no README
+
+### 📁 Estrutura de Dados em Produção
+```
+C:\Users\{user}\AppData\Roaming\recruter-tech\
+├── config.json              # electron-store (configurações)
+├── data/
+│   ├── questions.json       # Perguntas técnicas
+│   └── sessions/            # Sessões salvas
+└── uploads/                 # Arquivos temporários
+```
+
+---
+
 ## [1.1.0] - 2026-02-28
 
 ### 🆕 Adicionado
@@ -18,8 +62,6 @@
 - `package.json` (raiz) - Configuração principal do Electron
 - `electron/main.js` - Processo principal do Electron
 - `electron/preload.js` - Script de preload para segurança
-- `DESKTOP.md` - Documentação completa da versão desktop
-- `DESKTOP_QUICKSTART.md` - Guia rápido de início
 - `desktop.sh` e `desktop.bat` - Scripts de inicialização
 - `build/README.md` - Instruções para ícones
 - `frontend/src/utils/electron.js` - Utilitários para detecção do Electron

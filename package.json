@@ -14,9 +14,9 @@
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm install --production",
-    "build:win": "npm run build && electron-builder --win",
+    "build:win": "set CSC_IDENTITY_AUTO_DISCOVERY=false && npm run build && electron-builder --win",
     "build:linux": "npm run build && electron-builder --linux",
-    "build:all": "npm run build && electron-builder --win --linux",
+    "build:all": "set CSC_IDENTITY_AUTO_DISCOVERY=false && npm run build && electron-builder --win --linux",
     "postinstall": "cd frontend && npm install && cd ../backend && npm install"
   },
   "dependencies": {
@@ -27,6 +27,7 @@
     "concurrently": "^8.2.2",
     "electron": "^28.2.0",
     "electron-builder": "^24.9.1",
+    "electron-icon-builder": "^2.0.1",
     "wait-on": "^7.2.0"
   },
   "build": {

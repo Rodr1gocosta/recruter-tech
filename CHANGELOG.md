@@ -2,6 +2,17 @@
 
 ## [1.2.1] - 2026-03-12
 
+### 🎨 Geração de Ícones e Instalador Windows
+- **Adicionado** geração automática de ícones a partir do SVG
+- **Criado** `build/icon.ico` (Windows) e `build/icon.png` (Linux)
+- **Gerados** todos os tamanhos de ícones (16x16 até 1024x1024)
+- **Configurado** electron-builder para builds sem assinatura de código
+- **Adicionado** `CSC_IDENTITY_AUTO_DISCOVERY=false` nos scripts de build
+- **Instalador Windows** criado com sucesso (~79 MB)
+
+**Dependências:**
+- `electron-icon-builder` (devDependencies) - para regenerar ícones se necessário
+
 ### 📂 Reorganização de Scripts
 - **Renomeado** `build-desktop.bat` → `build.bat` (nome mais simples)
 - **Renomeado** `build-desktop.sh` → `build.sh`

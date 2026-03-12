@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.1] - 2026-03-12
+
+### 📂 Reorganização de Scripts
+- **Renomeado** `build-desktop.bat` → `build.bat` (nome mais simples)
+- **Renomeado** `build-desktop.sh` → `build.sh`
+- **Criada** pasta `scripts/` para utilitários
+- **Movido** `check.sh` → `scripts/check-docker.sh`
+- **Movido** `generate-icons.sh` → `scripts/generate-icons.sh`
+- **Removido** `dev.sh` (funcionalidade redundante com `desktop.sh`)
+
+**Estrutura final:**
+- Scripts principais na raiz: `start.bat/sh`, `desktop.bat/sh`, `build.bat/sh`
+- Scripts utilitários organizados em `scripts/`
+- Estrutura mais limpa e intuitiva para o usuário
+
+---
+
 ## [1.2.0] - 2026-03-12
 
 ### 🚀 Adicionado

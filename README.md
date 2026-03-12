@@ -319,12 +319,24 @@ npm run build:frontend
 
 # Empacotar para Windows (instalador .exe)
 npm run build:win
+build.bat             # Ou use o script interativo (Windows)
 
 # Empacotar para Linux (AppImage + .deb)
 npm run build:linux
+./build.sh            # Ou use o script interativo (Linux/Mac)
 
 # Empacotar para ambos
 npm run build:all
+```
+
+### Scripts Utilitários
+
+```bash
+# Verificar status do Docker (Linux/Mac)
+./scripts/check-docker.sh
+
+# Gerar ícones automaticamente (requer ImageMagick)
+./scripts/generate-icons.sh
 ```
 
 ### Docker - Gerenciamento

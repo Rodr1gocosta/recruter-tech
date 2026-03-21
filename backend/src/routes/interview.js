@@ -8,7 +8,8 @@ import {
   downloadPDF,
   getQuestions,
   saveQuestions,
-  getResume
+  getResume,
+  clearSession
 } from '../controllers/interviewController.js';
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router.post('/upload-resume', upload.single('resume'), uploadResume);
 router.post('/experience', saveExperienceData);
 router.post('/technical', saveTechnicalData);
 router.post('/generate-report', generateReport);
+router.post('/clear-session', clearSession);
 router.get('/download/:fileName', downloadPDF);
 router.get('/questions', getQuestions);
 router.post('/questions', saveQuestions);

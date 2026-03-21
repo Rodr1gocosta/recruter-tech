@@ -172,8 +172,9 @@ const closeSettings = () => {
 };
 
 const handleSettingsUpdate = () => {
-  // Pode adicionar lógica adicional quando as configurações forem atualizadas
+  // Disparar evento global para atualizar componentes que dependem das configurações
   console.log('Configurações atualizadas');
+  window.dispatchEvent(new Event('settings-updated'));
 };
 
 const openCrudModal = () => {

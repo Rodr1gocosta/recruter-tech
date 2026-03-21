@@ -100,6 +100,10 @@ export const interviewAPI = {
     return api.post('/interview/questions', { categories });
   },
 
+  clearSession(sessionId) {
+    return api.post('/interview/clear-session', { sessionId });
+  },
+
   downloadPDF(fileName) {
     return `${api.defaults.baseURL}/interview/download/${fileName}`;
   }

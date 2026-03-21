@@ -279,11 +279,15 @@ const showTechnicalInput = ref(false);
 const showClientInput = ref(false);
 const showRecruiterInput = ref(false);
 
+// API Keys (reactive)
+const apiKeys = ref([]);
+
 // Load CRUD data
 const loadCrudData = () => {
   technicalReferences.value = getStorage('technicalReferences', []);
   clients.value = getStorage('clients', []);
   recruiters.value = getStorage('recruiters', []);
+  apiKeys.value = getStorage('api_keys', []);
 };
 
 // Handle changes
@@ -326,9 +330,16 @@ onMounted(() => {
   };
   window.addEventListener('crud-data-updated', handleCrudUpdate);
   
+  // Listen for Settings updates (API Keys)
+  const handleSettingsUpdate = () => {
+    apiKeys.value = getStorage('api_keys', []);
+  };
+  window.addEventListener('settings-updated', handleSettingsUpdate);
+  
   // Cleanup
   onUnmounted(() => {
     window.removeEventListener('crud-data-updated', handleCrudUpdate);
+    window.removeEventListener('settings-updated', handleSettingsUpdate);
   });
   
   // Set initial values if exists
@@ -376,8 +387,8 @@ const uploading = ref(false);
 const error = ref('');
 
 const hasApiKey = computed(() => {
-  const keys = getStorage('api_keys', []);
-  const hasActiveKey = keys.some(k => k.enabled && k.key && k.key.trim().length > 0);
+  // Verificar chaves do ref reativo
+  const hasActiveKey = apiKeys.value.some(k => k.enabled && k.key && k.key.trim().length > 0);
   
   if (!hasActiveKey) {
     // Fallback para chave antiga

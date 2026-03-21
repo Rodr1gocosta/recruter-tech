@@ -224,9 +224,20 @@ const handleGenerateReport = async () => {
   }
 };
 
-const handleReset = () => {
+const handleReset = async () => {
   if (confirm('Deseja iniciar uma nova entrevista? Os dados atuais serão perdidos.')) {
-    window.location.reload();
+    try {
+      // Limpar sessão e deletar currículo do servidor
+      if (props.data.sessionId) {
+        await interviewAPI.clearSession(props.data.sessionId);
+        console.log('✅ Sessão e currículo limpos');
+      }
+    } catch (err) {
+      console.error('Erro ao limpar sessão:', err);
+      // Continua o reload mesmo se houver erro
+    } finally {
+      window.location.reload();
+    }
   }
 };
 </script>

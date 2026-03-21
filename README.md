@@ -168,11 +168,18 @@ npm run build:all
 ```
 C:\Users\{seu_usuario}\AppData\Roaming\recruter-tech\
 ├── config.json              # Configurações (electron-store)
+│   ├── technicalReferences  # Referências Técnicas *
+│   ├── clients              # Clientes *
+│   ├── recruiters           # Nome Responsável RH *
+│   ├── technicalQuestions   # Perguntas técnicas customizadas
+│   └── api_keys             # Chaves de API (OpenAI, Gemini, etc)
 ├── data/
-│   ├── questions.json       # Perguntas técnicas
+│   ├── questions.json       # Perguntas técnicas (arquivo JSON)
 │   └── sessions/            # Sessões de entrevista
 └── uploads/                 # Arquivos temporários
 ```
+
+**Nota:** Os dados marcados com * (Referências Técnicas, Clientes e Responsáveis RH) são salvos no **electron-store** (`config.json`) e ficam persistidos localmente no computador do usuário.
 
 ---
 
@@ -385,21 +392,25 @@ docker-compose exec frontend sh
 
 ### Persistência de Dados
 
-**Frontend (electron-store):**
+**Frontend (electron-store - `config.json`):**
 - Chaves de API (OpenAI, Gemini, Anthropic, etc.)
-- Clientes, Recrutadores, Referências Técnicas
+- **Clientes** * - Salvos localmente no computador
+- **Recrutadores** * - Salvos localmente no computador
+- **Referências Técnicas** * - Salvos localmente no computador
 - Perguntas técnicas customizadas
 - Configurações do usuário
 
 **Backend (Arquivos JSON):**
+- **Perguntas Técnicas** - Salvas em `questions.json` (arquivo no disco)
 - Sessões de entrevista em andamento (salvas automaticamente)
 - Histórico de sessões (até deletar manualmente)
-- Limpeza automática de sessões antigas (>7 dias)
 
 **Arquivos Temporários:**
 - Currículos (deletados após gerar relatório)
 - PDFs de relatórios (deletados 5 segundos após download)
 - Cleanup automático
+
+**Nota:** Dados marcados com * ficam persistidos em `AppData\Roaming\recruter-tech\config.json` e sobrevivem após fechar o aplicativo.
 
 ## 🎨 Customização
 

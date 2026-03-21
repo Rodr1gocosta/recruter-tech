@@ -196,6 +196,35 @@ export const getResume = async (req, res) => {
   }
 };
 
+export const clearSession = async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+
+    if (!sessionId) {
+      return res.status(400).json({ error: 'SessionId não fornecido' });
+    }
+
+    const session = loadSession(sessionId);
+    
+    // Deletar currículo se existir
+    if (session && session.resumePath && fs.existsSync(session.resumePath)) {
+      fs.unlinkSync(session.resumePath);
+      console.log('🗑️ Currículo deletado:', session.resumePath);
+    }
+    
+    // Deletar sessão
+    deleteSession(sessionId);
+
+    res.json({
+      success: true,
+      message: 'Sessão e currículo deletados com sucesso'
+    });
+  } catch (error) {
+    console.error('Erro ao limpar sessão:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const getQuestions = async (req, res) => {
   try {
     const questionsPath = path.join(DATA_PATH, 'questions.json');

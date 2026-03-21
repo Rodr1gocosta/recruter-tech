@@ -96,6 +96,10 @@ export const interviewAPI = {
     return api.get('/interview/questions');
   },
 
+  saveQuestions(categories) {
+    return api.post('/interview/questions', { categories });
+  },
+
   downloadPDF(fileName) {
     return `${api.defaults.baseURL}/interview/download/${fileName}`;
   }

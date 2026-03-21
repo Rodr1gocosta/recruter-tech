@@ -203,7 +203,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { interviewAPI } from '../services/api';
-import { getStorage, setStorage } from '../utils/storage.js';
 
 const props = defineProps(['data']);
 const emit = defineEmits(['next', 'back', 'update']);
@@ -214,27 +213,6 @@ const answers = ref({});
 const loading = ref(true);
 const saving = ref(false);
 const error = ref('');
-
-// Load questions from storage
-const loadQuestionsFromLocalStorage = () => {
-  const stored = getStorage('technicalQuestions');
-  if (stored && Array.isArray(stored)) {
-    return { categories: stored };
-  }
-  return null;
-};
-
-// Migrate initial data from backend to storage
-const migrateDataToLocalStorage = async () => {
-  try {
-    const response = await interviewAPI.getQuestions();
-    setStorage('technicalQuestions', response.data.categories);
-    return response.data;
-  } catch (err) {
-    console.error('Erro ao migrar dados:', err);
-    return { categories: [] };
-  }
-};
 
 // Categorias filtradas com base na seleção
 const filteredCategories = computed(() => {
@@ -321,15 +299,9 @@ const toggleSkipQuestion = (questionId) => {
 const loadQuestions = async () => {
   loading.value = true;
   try {
-    // Try to load from localStorage first
-    let data = loadQuestionsFromLocalStorage();
-    
-    // If no data in localStorage, migrate from backend
-    if (!data || data.categories.length === 0) {
-      data = await migrateDataToLocalStorage();
-    }
-    
-    allCategories.value = data.categories;
+    // Carregar sempre do backend (arquivo questions.json)
+    const response = await interviewAPI.getQuestions();
+    allCategories.value = response.data.categories || [];
     
     // Inicializar respostas para TODAS as perguntas (mesmo que não exibidas)
     allCategories.value.forEach(category => {

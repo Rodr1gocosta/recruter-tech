@@ -202,7 +202,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { getStorage, setStorage } from '../utils/storage.js';
+import { interviewAPI } from '../services/api.js';
 
 const props = defineProps({
   isOpen: Boolean
@@ -215,6 +215,7 @@ const selectedTheme = ref(null);
 const editingTheme = ref(null);
 const editingQuestion = ref(null);
 const successMessage = ref('');
+const loading = ref(false);
 
 const newTheme = ref({
   name: ''
@@ -231,16 +232,33 @@ const generateId = () => {
   return Date.now() + Math.random().toString(36).substring(2, 9);
 };
 
-// Load data from storage
-const loadData = () => {
-  categories.value = getStorage('technicalQuestions', []);
+// Load data from backend
+const loadData = async () => {
+  try {
+    loading.value = true;
+    const response = await interviewAPI.getQuestions();
+    categories.value = response.data.categories || [];
+  } catch (error) {
+    console.error('Erro ao carregar perguntas:', error);
+    categories.value = [];
+  } finally {
+    loading.value = false;
+  }
 };
 
-// Save data to storage
-const saveData = () => {
-  setStorage('technicalQuestions', categories.value);
-  emit('update');
-  showSuccess('Dados salvos com sucesso!');
+// Save data to backend
+const saveData = async () => {
+  try {
+    loading.value = true;
+    await interviewAPI.saveQuestions(categories.value);
+    emit('update');
+    showSuccess('Dados salvos com sucesso!');
+  } catch (error) {
+    console.error('Erro ao salvar perguntas:', error);
+    showSuccess('Erro ao salvar dados!');
+  } finally {
+    loading.value = false;
+  }
 };
 
 // Show success message

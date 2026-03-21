@@ -4,11 +4,6 @@ import path from 'path';
 // Paths configuráveis via variáveis de ambiente
 const SESSIONS_DIR = process.env.SESSIONS_PATH || path.join(process.cwd(), 'data', 'sessions');
 
-// Log para debug em produção
-console.log('📁 SessionService - Diretório de sessões:', SESSIONS_DIR);
-console.log('📁 SessionService - SESSIONS_PATH env:', process.env.SESSIONS_PATH);
-console.log('📁 SessionService - process.cwd():', process.cwd());
-
 /**
  * Garantir que o diretório de sessões existe
  */

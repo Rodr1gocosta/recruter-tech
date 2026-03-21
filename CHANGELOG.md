@@ -1,5 +1,46 @@
 # Changelog
 
+## [1.3.0] - 2026-03-21
+
+### ✨ Novo
+- **Perguntas Técnicas** - Agora são salvas em arquivo `questions.json` (AppData) ao invés de localStorage
+- **API Backend** - Endpoint `POST /api/interview/questions` para salvar perguntas
+- **API Backend** - Endpoint `GET /api/interview/questions` para carregar perguntas
+- **Desinstalador** - Opção de remover dados do usuário ao desinstalar (`installer.nsh`)
+- **Produção Limpa** - Instalações novas começam sem dados de desenvolvimento
+
+### 🔧 Corrigido
+- **Backend em Produção** - Incluídas todas as dependências (`node_modules`) no instalador
+- **Dados de Desenvolvimento** - Excluídos `.env`, `Dockerfile`, `data/sessions/` e `uploads/` do build
+- **Perguntas Técnicas** - Carregadas do backend (arquivo) ao invés de localStorage
+- **Inicialização** - Criação de `questions.json` vazio na primeira execução
+
+### 🗑️ Limpeza de Build
+- **Excluído do instalador:**
+  - `backend/data/sessions/` (sessões de dev)
+  - `backend/uploads/` (currículos de dev)
+  - `backend/.env` (chaves locais)
+  - `backend/Dockerfile`
+  - `backend/docker-compose.yml`
+  - `backend/.gitignore`
+
+### 🔐 Segurança
+- **Desinstalação** - Pergunta ao usuário se deseja remover dados pessoais
+- **AppData** - Dados salvos em `AppData\Roaming\recruter-tech`
+- **Instalação** - Binários em `AppData\Local\Programs\Recruter Tech`
+
+### 📁 Estrutura de Dados em Produção
+```
+AppData\Roaming\recruter-tech\
+├── config.json          (electron-store)
+├── data\
+│   ├── questions.json   (perguntas técnicas)
+│   └── sessions\        (entrevistas)
+└── uploads\             (currículos PDF)
+```
+
+---
+
 ## [1.2.1] - 2026-03-12
 
 ### 🔧 Corrigido

@@ -13,11 +13,6 @@ const __dirname = path.dirname(__filename);
 const DATA_PATH = process.env.DATA_PATH || path.join(process.cwd(), 'data');
 const UPLOADS_PATH = process.env.UPLOADS_PATH || path.join(process.cwd(), 'uploads');
 
-// Log para debug em produção
-console.log('📁 InterviewController - DATA_PATH:', DATA_PATH);
-console.log('📁 InterviewController - UPLOADS_PATH:', UPLOADS_PATH);
-console.log('📁 InterviewController - process.cwd():', process.cwd());
-
 export const uploadResume = async (req, res) => {
   try {
     if (!req.file) {
@@ -204,10 +199,37 @@ export const getResume = async (req, res) => {
 export const getQuestions = async (req, res) => {
   try {
     const questionsPath = path.join(DATA_PATH, 'questions.json');
+    
+    // Se o arquivo não existir, retorna estrutura vazia
+    if (!fs.existsSync(questionsPath)) {
+      return res.json({ categories: [] });
+    }
+    
     const questionsData = JSON.parse(fs.readFileSync(questionsPath, 'utf8'));
     res.json(questionsData);
   } catch (error) {
     console.error('Erro ao carregar perguntas:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const saveQuestions = async (req, res) => {
+  try {
+    const { categories } = req.body;
+    const questionsPath = path.join(DATA_PATH, 'questions.json');
+    
+    // Garantir que o diretório existe
+    if (!fs.existsSync(DATA_PATH)) {
+      fs.mkdirSync(DATA_PATH, { recursive: true });
+    }
+    
+    const questionsData = { categories };
+    fs.writeFileSync(questionsPath, JSON.stringify(questionsData, null, 2));
+    
+    console.log('💾 Perguntas salvas em:', questionsPath);
+    res.json({ success: true, message: 'Perguntas salvas com sucesso' });
+  } catch (error) {
+    console.error('Erro ao salvar perguntas:', error);
     res.status(500).json({ error: error.message });
   }
 };

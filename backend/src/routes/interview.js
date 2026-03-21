@@ -7,6 +7,7 @@ import {
   generateReport,
   downloadPDF,
   getQuestions,
+  saveQuestions,
   getResume
 } from '../controllers/interviewController.js';
 
@@ -19,6 +20,7 @@ router.post('/technical', saveTechnicalData);
 router.post('/generate-report', generateReport);
 router.get('/download/:fileName', downloadPDF);
 router.get('/questions', getQuestions);
+router.post('/questions', saveQuestions);
 router.get('/resume/:sessionId', getResume);
 
 export default router;

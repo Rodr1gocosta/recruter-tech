@@ -40,9 +40,6 @@
     "files": [
       "electron/**/*",
       "frontend/dist/**/*",
-      "backend/**/*",
-      "!backend/node_modules",
-      "!backend/uploads",
       "package.json"
     ],
     "extraResources": [
@@ -50,9 +47,7 @@
         "from": "backend",
         "to": "backend",
         "filter": [
-          "**/*",
-          "!node_modules",
-          "!uploads"
+          "**/*"
         ]
       }
     ],

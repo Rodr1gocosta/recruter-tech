@@ -178,10 +178,6 @@ C:\Users\{seu_usuario}\AppData\Roaming\recruter-tech\
 
 ## 🐳 Instalação e Uso - Modo Docker
 
----
-
-## 🐳 Instalação e Uso - Modo Docker
-
 ### Pré-requisitos
 - Docker 20.10+
 - Docker Compose 2.0+

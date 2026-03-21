@@ -67,6 +67,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 });
 
 // Log quando o preload script é carregado
-console.log('Preload script carregado com sucesso');
-console.log('Plataforma:', process.platform);
-console.log('Electron version:', process.versions.electron);
+console.log('🚀 Preload script carregado com sucesso');
+console.log('🔍 Plataforma:', process.platform);
+console.log('🔍 Electron version:', process.versions.electron);
+console.log('🔍 Store criado:', !!store);
+
+// Verificar se o contextBridge funcionou
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('🔍 DOMContentLoaded - window.electronAPI:', window.electronAPI);
+});

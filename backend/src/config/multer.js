@@ -5,9 +5,15 @@ import path from 'path';
 // Path configurável via variável de ambiente
 const UPLOADS_PATH = process.env.UPLOADS_PATH || path.join(process.cwd(), 'uploads');
 
+// Log para debug em produção
+console.log('📁 Multer - UPLOADS_PATH:', UPLOADS_PATH);
+console.log('📁 Multer - UPLOADS_PATH env:', process.env.UPLOADS_PATH);
+console.log('📁 Multer - process.cwd():', process.cwd());
+
 // Garantir que o diretório existe
 if (!fs.existsSync(UPLOADS_PATH)) {
   fs.mkdirSync(UPLOADS_PATH, { recursive: true });
+  console.log(`✅ Diretório de uploads criado: ${UPLOADS_PATH}`);
 }
 
 // Configuração de upload de arquivos

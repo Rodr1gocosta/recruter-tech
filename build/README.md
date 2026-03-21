@@ -10,6 +10,14 @@
 - **icon.png** - Ícone para Linux (512x512 px)
   - Formato: PNG com transparência
 
+## Instalador Windows (NSIS):
+
+### installer.nsh
+Script customizado para instalação/desinstalação no Windows que:
+- **Durante a desinstalação**: Pergunta ao usuário se deseja remover os dados salvos
+- Remove completamente o diretório `AppData\Roaming\recruter-tech` se confirmado
+- Remove configurações, chaves API, currículos, sessões e perguntas
+
 ## Ferramentas úteis para criar ícones:
 
 - [Icon Generator](https://www.favicon-generator.org/)

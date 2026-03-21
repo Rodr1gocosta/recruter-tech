@@ -13,6 +13,11 @@ const __dirname = path.dirname(__filename);
 const DATA_PATH = process.env.DATA_PATH || path.join(process.cwd(), 'data');
 const UPLOADS_PATH = process.env.UPLOADS_PATH || path.join(process.cwd(), 'uploads');
 
+// Log para debug em produção
+console.log('📁 InterviewController - DATA_PATH:', DATA_PATH);
+console.log('📁 InterviewController - UPLOADS_PATH:', UPLOADS_PATH);
+console.log('📁 InterviewController - process.cwd():', process.cwd());
+
 export const uploadResume = async (req, res) => {
   try {
     if (!req.file) {

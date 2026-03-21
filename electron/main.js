@@ -38,14 +38,16 @@ function ensureDirectories() {
     }
   });
   
-  // Copiar questions.json se não existir em produção
+  // Criar questions.json vazio se não existir em produção
   if (!isDev) {
-    const questionsSource = path.join(process.resourcesPath, 'backend', 'data', 'questions.json');
     const questionsDest = path.join(DATA_PATHS.data, 'questions.json');
     
-    if (fs.existsSync(questionsSource) && !fs.existsSync(questionsDest)) {
-      fs.copyFileSync(questionsSource, questionsDest);
-      console.log('✅ questions.json copiado para userData');
+    if (!fs.existsSync(questionsDest)) {
+      const emptyQuestions = {
+        categories: []
+      };
+      fs.writeFileSync(questionsDest, JSON.stringify(emptyQuestions, null, 2));
+      console.log('✅ questions.json vazio criado - usuário deve preencher via interface');
     }
   }
 }

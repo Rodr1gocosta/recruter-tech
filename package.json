@@ -47,7 +47,14 @@
         "from": "backend",
         "to": "backend",
         "filter": [
-          "**/*"
+          "**/*",
+          "!data/**/*",
+          "!uploads/**/*",
+          "!.env",
+          "!.env.example",
+          "!.gitignore",
+          "!Dockerfile",
+          "!docker-compose.yml"
         ]
       }
     ],
@@ -69,7 +76,9 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "include": "build/installer.nsh",
+      "deleteAppDataOnUninstall": true
     }
   }
 }

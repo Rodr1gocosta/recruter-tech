@@ -114,9 +114,10 @@ function startBackend() {
   // Em produção, inicia o backend junto com o Electron
   const backendPath = path.join(process.resourcesPath, 'backend/src/server.js');
   
-  backendProcess = spawn('node', [backendPath], {
+  backendProcess = spawn(process.execPath, [backendPath], {
     env: {
       ...process.env,
+      ELECTRON_RUN_AS_NODE: '1',
       PORT: BACKEND_PORT,
       NODE_ENV: 'production',
       DATA_PATH: DATA_PATHS.data,

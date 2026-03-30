@@ -155,6 +155,7 @@
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue';
 import { interviewAPI } from '../services/api';
+import { isElectron } from '../utils/electron';
 
 const props = defineProps(['data']);
 const emit = defineEmits(['next', 'back', 'update']);
@@ -170,11 +171,27 @@ const localData = reactive({
 const saving = ref(false);
 const error = ref('');
 
+// Função para obter a base URL do backend
+const getBaseURL = () => {
+  // Se tem variável de ambiente definida, usar ela
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Se está no Electron, usar URL absoluta do backend
+  if (isElectron()) {
+    return 'http://localhost:3000/api';
+  }
+  
+  // Modo web/Docker: usar URL relativa
+  return '/api';
+};
+
 // URL do currículo
 const resumeUrl = computed(() => {
   if (props.data.sessionId) {
-    // Usa o proxy do Vite que redireciona /api para o backend
-    const url = `/api/interview/resume/${props.data.sessionId}`;
+    const baseURL = getBaseURL();
+    const url = `${baseURL}/interview/resume/${props.data.sessionId}`;
     console.log('📄 Resume URL:', url);
     console.log('📋 SessionId:', props.data.sessionId);
     return url;

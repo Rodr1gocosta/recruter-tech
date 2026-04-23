@@ -1,6 +1,6 @@
 {
   "name": "recruter-tech",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Sistema de Entrevistas Técnicas - Desktop App",
   "main": "electron/main.js",
   "type": "module",

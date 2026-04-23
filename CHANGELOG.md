@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.4.0] - 2026-04-23
+
+### ✨ Novo
+- **Validação de chave de API** - Ao adicionar uma chave nas Configurações, o sistema agora faz uma chamada real ao provedor para confirmar que a integração funciona antes de salvar
+- **Feedback visual** - Botão "Adicionar Chave" exibe spinner e mensagem "Verificando integração..." durante a validação
+- **Erros reais da IA** - Mensagens de erro agora exibem o motivo exato retornado pela API (ex: chave inválida, modelo não disponível, cota excedida)
+- **Backend auto-start** - Electron verifica se o backend já está rodando antes de subir uma nova instância (evita conflito de portas)
+- **Endpoint de validação** - `POST /api/interview/validate-key` para testar chaves de forma barata por provedor
+
+### 🔧 Corrigido
+- **Preload CJS** - `preload.js` reescrito para CommonJS puro (`require`), resolvendo erro `Cannot use import statement outside a module`
+- **electron-store via IPC** - Store movido para o processo principal (`main.js`); preload usa IPC para acessar dados (resolve `module not found: electron-store`)
+  - OpenAI: `gpt-4-turbo-preview` → `gpt-5.4-mini`
+  - Gemini: `gemini-pro` → `gemini-3.0-flash`
+  - Anthropic: `claude-3-sonnet-20240229` → `claude-3-haiku-20240307`
+  - Groq: `llama3-70b-8192` → `llama-3.3-70b-versatile`
+- **Parâmetro OpenAI** - `max_tokens` substituído por `max_completion_tokens` (exigido nos modelos GPT-5+)
+- **Backend dev sem nodemon** - Substituído `nodemon` (não instalado globalmente) por `node --watch` (nativo Node 18+)
+- **Frontend ESM** - Adicionado `"type": "module"` no `frontend/package.json` (elimina aviso de performance do Vite)
+- **Race condition de inicialização** - Script `dev` agora aguarda `localhost:3000/health` além de `localhost:5173` antes de abrir o Electron
+
+### 🔐 Segurança
+- **Content-Security-Policy** - Headers CSP injetados via `session.webRequest.onHeadersReceived`:
+  - Desenvolvimento: inclui `unsafe-eval` e `unsafe-inline` (necessário para Vite HMR)
+  - Produção: política restrita sem `unsafe-eval`
+
+---
+
 ## [1.3.0] - 2026-03-21
 
 ### ✨ Novo

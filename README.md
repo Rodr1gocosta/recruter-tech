@@ -52,8 +52,8 @@ recruter-tech/
 ├── 🔧 start.sh / start.bat         # Scripts para Docker
 │
 ├── 📂 electron/                    # 🖥️ Aplicação Desktop
-│   ├── main.js                     # Processo principal Electron
-│   └── preload.js                  # Preload script (segurança)
+│   ├── main.js                     # Processo principal Electron (store + IPC)
+│   └── preload.js                  # Preload script (CommonJS, acesso via IPC)
 │
 ├── 📂 frontend/                    # 🎨 Interface Vue.js
 │   ├── src/
@@ -91,7 +91,7 @@ recruter-tech/
 ### Backend
 - **Node.js 20+** - Runtime JavaScript
 - **Express** - Framework web minimalista
-- **OpenAI API / Google Gemini** - Geração de relatórios com IA
+- **OpenAI (GPT-5.4 mini) / Google Gemini 3.0 Flash / Anthropic Claude / Groq** - Geração de relatórios com IA
 - **PDFKit** - Geração de PDFs profissionais
 - **Multer** - Upload de arquivos
 - **pdf-parse** - Extração de texto de PDFs
@@ -99,7 +99,7 @@ recruter-tech/
 ### Desktop
 - **Electron 28** - Framework para aplicações desktop
 - **electron-builder** - Empacotamento para Windows e Linux
-- **electron-store** - Persistência de dados local
+- **electron-store v11** - Persistência de dados local (processo principal via IPC)
 
 ### DevOps
 - **Docker** - Containerização

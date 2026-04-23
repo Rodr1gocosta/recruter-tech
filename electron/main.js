@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 
 // Store no processo principal
 const store = new Store({
+  cwd: path.join(app.getPath('userData'), 'data'),
   schema: {
     technicalReferences: { type: 'array', default: [] },
     clients:             { type: 'array', default: [] },

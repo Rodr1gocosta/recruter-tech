@@ -88,7 +88,9 @@ export const getStorage = (key, defaultValue = null) => {
  */
 export const setStorage = (key, value) => {
   if (isElectron && window.electronAPI?.store) {
-    window.electronAPI.store.set(key, value);
+    // JSON.parse/stringify remove o Proxy reativo do Vue antes de enviar pelo IPC
+    const plain = JSON.parse(JSON.stringify(value));
+    window.electronAPI.store.set(key, plain);
   } else {
     // Fallback para localStorage
     const stringValue = typeof value === 'string' ? value : JSON.stringify(value);

@@ -1,4 +1,4 @@
-import { generateInterviewReport } from '../services/aiService.js';
+import { generateInterviewReport, validateApiKey } from '../services/aiService.js';
 import { generatePDF } from '../services/pdfService.js';
 import { extractTextFromPDF } from '../services/resumeService.js';
 import { saveSession, loadSession, updateSession, deleteSession } from '../services/sessionService.js';
@@ -222,6 +222,23 @@ export const clearSession = async (req, res) => {
   } catch (error) {
     console.error('Erro ao limpar sessão:', error);
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const validateKey = async (req, res) => {
+  try {
+    const { provider, key } = req.body;
+
+    if (!provider || !key) {
+      return res.status(400).json({ error: 'Provedor e chave são obrigatórios' });
+    }
+
+    await validateApiKey(key, provider);
+
+    res.json({ success: true, message: 'Chave válida! Integração bem-sucedida.' });
+  } catch (error) {
+    console.error('Erro ao validar chave:', error);
+    res.status(400).json({ success: false, error: error.message });
   }
 };
 

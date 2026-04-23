@@ -9,7 +9,8 @@ import {
   getQuestions,
   saveQuestions,
   getResume,
-  clearSession
+  clearSession,
+  validateKey
 } from '../controllers/interviewController.js';
 
 const router = express.Router();
@@ -20,6 +21,7 @@ router.post('/experience', saveExperienceData);
 router.post('/technical', saveTechnicalData);
 router.post('/generate-report', generateReport);
 router.post('/clear-session', clearSession);
+router.post('/validate-key', validateKey);
 router.get('/download/:fileName', downloadPDF);
 router.get('/questions', getQuestions);
 router.post('/questions', saveQuestions);

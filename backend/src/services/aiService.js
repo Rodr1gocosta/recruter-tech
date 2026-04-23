@@ -80,7 +80,7 @@ async function generateWithOpenAI(data, apiKey) {
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: 'gpt-5.4-mini',
       messages: [
         {
           role: 'system',
@@ -92,19 +92,20 @@ async function generateWithOpenAI(data, apiKey) {
         }
       ],
       temperature: 0.5,
-      max_tokens: 2000
+      max_completion_tokens: 2000
     });
 
     return response.choices[0].message.content;
   } catch (error) {
     console.error('Erro ao gerar relatório com OpenAI:', error);
-    throw new Error('Falha ao gerar relatório com IA');
+    const msg = error?.error?.message || error?.message || 'Erro desconhecido na OpenAI';
+    throw new Error(`OpenAI: ${msg}`);
   }
 }
 
 async function generateWithGemini(data, apiKey) {
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  const model = genAI.getGenerativeModel({ model: "gemini-3.0-flash" });
 
   const prompt = buildPrompt(data);
   
@@ -114,7 +115,8 @@ async function generateWithGemini(data, apiKey) {
     return response.text();
   } catch (error) {
     console.error('Erro ao gerar relatório com Gemini:', error);
-    throw new Error('Falha ao gerar relatório com IA');
+    const msg = error?.message || 'Erro desconhecido no Gemini';
+    throw new Error(`Gemini: ${msg}`);
   }
 }
 
@@ -127,7 +129,7 @@ async function generateWithAnthropic(data, apiKey) {
   
   try {
     const message = await anthropic.messages.create({
-      model: "claude-3-sonnet-20240229",
+      model: "claude-3-haiku-20240307",
       max_tokens: 2000,
       temperature: 0.5,
       messages: [
@@ -141,7 +143,8 @@ async function generateWithAnthropic(data, apiKey) {
     return message.content[0].text;
   } catch (error) {
     console.error('Erro ao gerar relatório com Anthropic:', error);
-    throw new Error('Falha ao gerar relatório com IA');
+    const msg = error?.error?.error?.message || error?.message || 'Erro desconhecido no Anthropic';
+    throw new Error(`Anthropic: ${msg}`);
   }
 }
 
@@ -161,7 +164,7 @@ async function generateWithGroq(data, apiKey) {
   
   try {
     const response = await groq.chat.completions.create({
-      model: 'llama3-70b-8192',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
@@ -179,7 +182,8 @@ async function generateWithGroq(data, apiKey) {
     return response.choices[0].message.content;
   } catch (error) {
     console.error('Erro ao gerar relatório com Groq:', error);
-    throw new Error('Falha ao gerar relatório com IA');
+    const msg = error?.error?.message || error?.message || 'Erro desconhecido no Groq';
+    throw new Error(`Groq: ${msg}`);
   }
 }
 
@@ -209,7 +213,8 @@ async function generateWithCohere(data, apiKey) {
     return result.generations[0].text;
   } catch (error) {
     console.error('Erro ao gerar relatório com Cohere:', error);
-    throw new Error('Falha ao gerar relatório com IA');
+    const msg = error?.message || 'Erro desconhecido no Cohere';
+    throw new Error(`Cohere: ${msg}`);
   }
 }
 
@@ -328,6 +333,90 @@ function formatTechnicalAnswers(answers) {
   return formatted;
 }
 
+// ── Validação de chave ─────────────────────────────────────────────────────
+
+export async function validateApiKey(apiKey, provider) {
+  switch (provider) {
+    case 'openai':
+      return await validateOpenAI(apiKey);
+    case 'gemini':
+      return await validateGemini(apiKey);
+    case 'anthropic':
+      return await validateAnthropic(apiKey);
+    case 'groq':
+      return await validateGroq(apiKey);
+    case 'cohere':
+      return await validateCohere(apiKey);
+    default:
+      throw new Error(`Provedor desconhecido: ${provider}`);
+  }
+}
+
+async function validateOpenAI(apiKey) {
+  const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+  const openai = new OpenAI({ apiKey, httpAgent: httpsAgent });
+  try {
+    await openai.models.list();
+  } catch (error) {
+    const msg = error?.error?.message || error?.message || 'Chave inválida';
+    throw new Error(`OpenAI: ${msg}`);
+  }
+}
+
+async function validateGemini(apiKey) {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.0-flash' });
+  try {
+    await model.generateContent({ contents: [{ role: 'user', parts: [{ text: 'ok' }] }], generationConfig: { maxOutputTokens: 1 } });
+  } catch (error) {
+    const msg = error?.message || 'Chave inválida';
+    throw new Error(`Gemini: ${msg}`);
+  }
+}
+
+async function validateAnthropic(apiKey) {
+  const anthropic = new Anthropic({ apiKey });
+  try {
+    await anthropic.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 1,
+      messages: [{ role: 'user', content: 'ok' }]
+    });
+  } catch (error) {
+    const msg = error?.error?.error?.message || error?.message || 'Chave inválida';
+    throw new Error(`Anthropic: ${msg}`);
+  }
+}
+
+async function validateGroq(apiKey) {
+  const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+  const groq = new OpenAI({ apiKey, baseURL: 'https://api.groq.com/openai/v1', httpAgent: httpsAgent });
+  try {
+    await groq.models.list();
+  } catch (error) {
+    const msg = error?.error?.message || error?.message || 'Chave inválida';
+    throw new Error(`Groq: ${msg}`);
+  }
+}
+
+async function validateCohere(apiKey) {
+  try {
+    const response = await fetch('https://api.cohere.ai/v1/tokenize', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: 'ok', model: 'command' })
+    });
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      throw new Error(result.message || `HTTP ${response.status}`);
+    }
+  } catch (error) {
+    const msg = error?.message || 'Chave inválida';
+    throw new Error(`Cohere: ${msg}`);
+  }
+}
+
 export default {
-  generateInterviewReport
+  generateInterviewReport,
+  validateApiKey
 };

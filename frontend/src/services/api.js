@@ -104,6 +104,10 @@ export const interviewAPI = {
     return api.post('/interview/clear-session', { sessionId });
   },
 
+  validateKey(provider, key) {
+    return api.post('/interview/validate-key', { provider, key });
+  },
+
   downloadPDF(fileName) {
     return `${api.defaults.baseURL}/interview/download/${fileName}`;
   }

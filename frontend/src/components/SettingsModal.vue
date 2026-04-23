@@ -218,10 +218,14 @@
               <!-- Botão Adicionar -->
               <button 
                 @click="addNewKey"
-                :disabled="!newKey.key.trim()"
-                class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 py-2 rounded font-medium transition"
+                :disabled="!newKey.key.trim() || validating"
+                class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 py-2 rounded font-medium transition flex items-center justify-center gap-2"
               >
-                ➕ Adicionar Chave
+                <svg v-if="validating" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                {{ validating ? 'Verificando integração...' : '➕ Adicionar Chave' }}
               </button>
             </div>
           </div>
@@ -229,7 +233,9 @@
           <!-- Success/Error Messages -->
           <div v-if="message.text" :class="[
             'px-4 py-3 rounded border',
-            message.type === 'success' ? 'bg-green-900/20 border-green-600/30 text-green-400' : 'bg-red-900/20 border-red-600/30 text-red-400'
+            message.type === 'success' ? 'bg-green-900/20 border-green-600/30 text-green-400' :
+            message.type === 'info'    ? 'bg-blue-900/20 border-blue-600/30 text-blue-300' :
+                                         'bg-red-900/20 border-red-600/30 text-red-400'
           ]">
             {{ message.text }}
           </div>
@@ -284,6 +290,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { getStorage, setStorage, removeStorage } from '../utils/storage.js';
+import { interviewAPI } from '../services/api.js';
 
 const props = defineProps({
   isOpen: {
@@ -297,6 +304,7 @@ const emit = defineEmits(['close', 'update']);
 const activeTab = ref('api');
 const message = ref({ text: '', type: '' });
 const apiKeys = ref([]);
+const validating = ref(false);
 const newKey = ref({
   provider: 'openai',
   key: ''
@@ -382,7 +390,7 @@ const maskKey = (key) => {
   return key.substring(0, 4) + '••••••••••••••••' + key.substring(key.length - 4);
 };
 
-const addNewKey = () => {
+const addNewKey = async () => {
   if (!newKey.value.key.trim()) {
     showMessage('Por favor, insira uma chave válida', 'error');
     return;
@@ -396,6 +404,20 @@ const addNewKey = () => {
       showMessage(`Chave inválida. Deve começar com: ${prefixes.join(' ou ')}`, 'error');
       return;
     }
+  }
+
+  // Testar integração com o provedor
+  validating.value = true;
+  showMessage('Verificando integração com o provedor...', 'info');
+  try {
+    await interviewAPI.validateKey(newKey.value.provider, newKey.value.key.trim());
+  } catch (err) {
+    const errorMsg = err?.response?.data?.error || err?.message || 'Erro ao validar chave';
+    showMessage(`❌ Integração falhou: ${errorMsg}`, 'error');
+    validating.value = false;
+    return;
+  } finally {
+    validating.value = false;
   }
 
   // Adicionar nova chave
@@ -414,7 +436,7 @@ const addNewKey = () => {
     key: ''
   };
 
-  showMessage('Chave adicionada com sucesso!', 'success');
+  showMessage('✅ Chave validada e adicionada com sucesso!', 'success');
 };
 
 const deleteApiKey = (index) => {
@@ -456,9 +478,11 @@ const moveKeyDown = (index) => {
 
 const showMessage = (text, type) => {
   message.value = { text, type };
-  setTimeout(() => {
-    clearMessage();
-  }, 3000);
+  if (type !== 'info') {
+    setTimeout(() => {
+      clearMessage();
+    }, 4000);
+  }
 };
 
 const clearMessage = () => {

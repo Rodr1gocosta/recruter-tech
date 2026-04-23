@@ -4,9 +4,21 @@ import { fileURLToPath } from 'url';
 import isDev from 'electron-is-dev';
 import { spawn } from 'child_process';
 import fs from 'fs';
+import Store from 'electron-store';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Store no processo principal
+const store = new Store({
+  schema: {
+    technicalReferences: { type: 'array', default: [] },
+    clients:             { type: 'array', default: [] },
+    recruiters:          { type: 'array', default: [] },
+    technicalQuestions:  { type: 'array', default: [] },
+    api_keys:            { type: 'array', default: [] }
+  }
+});
 
 let mainWindow;
 let backendProcess;
@@ -178,11 +190,15 @@ app.on('before-quit', () => {
   stopBackend();
 });
 
-// IPC para comunicação com o renderer process (se necessário)
-ipcMain.handle('get-app-version', () => {
-  return app.getVersion();
-});
+// IPC para comunicação com o renderer process
+ipcMain.handle('get-app-version', () => app.getVersion());
+ipcMain.handle('get-app-path',    () => app.getAppPath());
 
-ipcMain.handle('get-app-path', () => {
-  return app.getAppPath();
-});
+// IPC para o electron-store
+ipcMain.on('store-get',          (event, key, def)  => { event.returnValue = store.get(key, def); });
+ipcMain.on('store-set',          (event, key, val)  => { store.set(key, val); });
+ipcMain.on('store-delete',       (event, key)       => { store.delete(key); });
+ipcMain.on('store-clear',        (event)            => { store.clear(); });
+ipcMain.on('store-has',          (event, key)       => { event.returnValue = store.has(key); });
+ipcMain.on('store-get-all',      (event)            => { event.returnValue = store.store; });
+ipcMain.on('store-set-multiple', (event, object)    => { Object.entries(object).forEach(([k, v]) => store.set(k, v)); });

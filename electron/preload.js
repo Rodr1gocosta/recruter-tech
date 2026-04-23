@@ -1,78 +1,37 @@
-import { contextBridge, ipcRenderer } from 'electron';
-import Store from 'electron-store';
+const { contextBridge, ipcRenderer } = require('electron');
 
-// Criar instância do store com schema
-const store = new Store({
-  schema: {
-    technicalReferences: {
-      type: 'array',
-      default: []
-    },
-    clients: {
-      type: 'array',
-      default: []
-    },
-    recruiters: {
-      type: 'array',
-      default: []
-    },
-    technicalQuestions: {
-      type: 'array',
-      default: []
-    },
-    api_keys: {
-      type: 'array',
-      default: []
-    }
-  }
-});
-
-// Expõe APIs seguras para o renderer process
+// Expõe APIs seguras para o renderer process via IPC
 contextBridge.exposeInMainWorld('electronAPI', {
   // Informações da aplicação
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
-  getAppPath: () => ipcRenderer.invoke('get-app-path'),
-  
+  getAppPath:    () => ipcRenderer.invoke('get-app-path'),
+
   // Detecta se está rodando no Electron
   isElectron: true,
-  
+
   // Informações da plataforma
-  platform: process.platform,
-  
-  // Versão do Node
-  nodeVersion: process.versions.node,
-  
-  // Versão do Chrome
-  chromeVersion: process.versions.chrome,
-  
-  // Versão do Electron
+  platform:        process.platform,
+  nodeVersion:     process.versions.node,
+  chromeVersion:   process.versions.chrome,
   electronVersion: process.versions.electron,
-  
-  // Store API
+
+  // Store API via IPC (electron-store fica no processo principal)
   store: {
-    get: (key, defaultValue) => store.get(key, defaultValue),
-    set: (key, value) => store.set(key, value),
-    delete: (key) => store.delete(key),
-    clear: () => store.clear(),
-    has: (key) => store.has(key),
-    // Obter todo o store
-    getAll: () => store.store,
-    // Definir múltiplos valores de uma vez
-    setMultiple: (object) => {
-      Object.entries(object).forEach(([key, value]) => {
-        store.set(key, value);
-      });
-    }
+    get:         (key, defaultValue) => ipcRenderer.sendSync('store-get', key, defaultValue),
+    set:         (key, value)        => ipcRenderer.send('store-set', key, value),
+    delete:      (key)               => ipcRenderer.send('store-delete', key),
+    clear:       ()                  => ipcRenderer.send('store-clear'),
+    has:         (key)               => ipcRenderer.sendSync('store-has', key),
+    getAll:      ()                  => ipcRenderer.sendSync('store-get-all'),
+    setMultiple: (object)            => ipcRenderer.send('store-set-multiple', object)
   }
 });
 
-// Log quando o preload script é carregado
 console.log('🚀 Preload script carregado com sucesso');
 console.log('🔍 Plataforma:', process.platform);
 console.log('🔍 Electron version:', process.versions.electron);
-console.log('🔍 Store criado:', !!store);
 
-// Verificar se o contextBridge funcionou
 window.addEventListener('DOMContentLoaded', () => {
   console.log('🔍 DOMContentLoaded - window.electronAPI:', window.electronAPI);
 });
+

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1] - 2026-08-26
+
+### 🔧 Corrigido
+- **Pontuação no relatório da IA** - Perguntas marcadas como "Não Contar Ponto" eram incluídas no cálculo da pontuação máxima enviada à IA, gerando percentuais incorretos (ex: 47/80 ao invés de 47/50). Agora apenas as perguntas contadas são somadas ao total máximo.
+
+---
+
 ## [1.4.0] - 2026-04-23
 
 ### ✨ Novo

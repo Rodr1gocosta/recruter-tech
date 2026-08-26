@@ -320,10 +320,15 @@ function formatTechnicalAnswers(answers) {
   let maxTotalScore = 0;
 
   answers.forEach((answer, index) => {
+    if (answer.skipped) {
+      formatted += `\nPergunta ${index + 1}: ${answer.question}\n`;
+      formatted += `Resposta: [Não contada / Ignorada]\n`;
+      return;
+    }
     formatted += `\nPergunta ${index + 1}: ${answer.question}\n`;
     formatted += `Resposta: ${answer.answer || 'Não respondida'}\n`;
     formatted += `Pontuação: ${answer.score}/${answer.maxScore}\n`;
-    
+
     totalScore += answer.score || 0;
     maxTotalScore += answer.maxScore || 5;
   });
